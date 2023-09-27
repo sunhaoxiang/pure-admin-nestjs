@@ -107,7 +107,7 @@ module.exports = {
     ],
     // Find and remove unused es6 module imports
     // https://github.com/sweepline/eslint-plugin-unused-imports
-    'unused-imports/no-unused-imports': 1,
+    'unused-imports/no-unused-imports': 0,
     'unused-imports/no-unused-vars': [
       'error',
       {
