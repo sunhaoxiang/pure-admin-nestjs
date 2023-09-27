@@ -99,13 +99,13 @@ module.exports = {
       },
     ],
     'sort-imports': [
-      1,
+      'error',
       {
         ignoreCase: true,
         ignoreDeclarationSort: true,
       },
     ],
-    // 自动删除未使用的导入
+    // Find and remove unused es6 module imports
     // https://github.com/sweepline/eslint-plugin-unused-imports
     'unused-imports/no-unused-imports': 1,
     'unused-imports/no-unused-vars': [
