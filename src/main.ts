@@ -1,10 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core'
 import {
   FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+  NestFastifyApplication
+} from '@nestjs/platform-fastify'
 
-import { AppModule } from './app.module';
+import { AppModule } from './app.module'
 
 async function bootstrap() {
   // use fastify adapter
@@ -15,13 +15,13 @@ async function bootstrap() {
       // allow cross-origin
       cors: true,
       // only show error and warn log
-      logger: ['error', 'warn'],
-    },
-  );
+      logger: ['error', 'warn']
+    }
+  )
   // set global prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api')
   await app.listen(3000, () => {
-    console.log('api: http://localhost:3000');
-  });
+    console.log('api: http://localhost:3000')
+  })
 }
-bootstrap();
+bootstrap()
