@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Permission } from './user/entities/permission.entity';
+import { Role } from './user/entities/role.entity';
+import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -16,7 +19,7 @@ import { UserModule } from './user/user.module';
       database: 'a-admin-nest',
       synchronize: true,
       logging: true,
-      entities: [],
+      entities: [User, Role, Permission],
       poolSize: 10,
       connectorPackage: 'mysql2',
       extra: {
