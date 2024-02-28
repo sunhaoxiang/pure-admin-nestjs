@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AppController } from './app.controller'
@@ -12,21 +13,30 @@ import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123456',
-      database: 'a-admin-nest',
-      synchronize: true,
-      logging: true,
-      entities: [User, Role, Permission],
-      poolSize: 10,
-      connectorPackage: 'mysql2',
-      extra: {
-        authPlugin: 'sha256_password'
-      }
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'src/.env'
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory(configService: ConfigService) {
+        return {
+          type: 'mysql',
+          host: configService.get('MYSQL_SERVER_HOST'),
+          port: configService.get('MYSQL_SERVER_PORT'),
+          username: configService.get('MYSQL_SERVER_USERNAME'),
+          password: configService.get('MYSQL_SERVER_PASSWORD'),
+          database: configService.get('MYSQL_SERVER_DATABASE'),
+          synchronize: true,
+          logging: true,
+          entities: [User, Role, Permission],
+          poolSize: 10,
+          connectorPackage: 'mysql2',
+          extra: {
+            authPlugin: 'sha256_password'
+          }
+        }
+      },
+      inject: [ConfigService]
     }),
     UserModule,
     RedisModule,
