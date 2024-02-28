@@ -1,7 +1,7 @@
-import { Global, Module } from '@nestjs/common';
-import { createClient } from 'redis';
+import { Global, Module } from '@nestjs/common'
+import { createClient } from 'redis'
 
-import { RedisService } from './redis.service';
+import { RedisService } from './redis.service'
 
 @Global()
 @Module({
@@ -13,15 +13,15 @@ import { RedisService } from './redis.service';
         const client = createClient({
           socket: {
             host: 'localhost',
-            port: 6379,
+            port: 6379
           },
-          database: 1,
-        });
-        await client.connect();
-        return client;
-      },
-    },
+          database: 1
+        })
+        await client.connect()
+        return client
+      }
+    }
   ],
-  exports: [RedisService],
+  exports: [RedisService]
 })
 export class RedisModule {}

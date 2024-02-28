@@ -1,9 +1,9 @@
 module.exports = {
   arrowParens: 'avoid',
   printWidth: 100,
-  // semi: false,
+  semi: false,
   singleQuote: true,
-  // trailingComma: 'none',
+  trailingComma: 'none',
   overrides: [
     {
       files: '.prettierrc',

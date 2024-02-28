@@ -1,14 +1,14 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { EmailModule } from './email/email.module';
-import { RedisModule } from './redis/redis.module';
-import { Permission } from './user/entities/permission.entity';
-import { Role } from './user/entities/role.entity';
-import { User } from './user/entities/user.entity';
-import { UserModule } from './user/user.module';
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { EmailModule } from './email/email.module'
+import { RedisModule } from './redis/redis.module'
+import { Permission } from './user/entities/permission.entity'
+import { Role } from './user/entities/role.entity'
+import { User } from './user/entities/user.entity'
+import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
@@ -25,14 +25,14 @@ import { UserModule } from './user/user.module';
       poolSize: 10,
       connectorPackage: 'mysql2',
       extra: {
-        authPlugin: 'sha256_password',
-      },
+        authPlugin: 'sha256_password'
+      }
     }),
     UserModule,
     RedisModule,
-    EmailModule,
+    EmailModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

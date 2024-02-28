@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { createTransport, Transporter } from 'nodemailer';
+import { Injectable } from '@nestjs/common'
+import { createTransport, Transporter } from 'nodemailer'
 
 @Injectable()
 export class EmailService {
-  transporter: Transporter;
+  transporter: Transporter
 
   constructor() {
     this.transporter = createTransport({
@@ -12,20 +12,20 @@ export class EmailService {
       secure: false,
       auth: {
         user: '邮箱地址占位',
-        pass: '授权码占位',
-      },
-    });
+        pass: '授权码占位'
+      }
+    })
   }
 
   async sendMail({ to, subject, html }) {
     await this.transporter.sendMail({
       from: {
         name: 'A Admin',
-        address: '邮箱地址占位',
+        address: '邮箱地址占位'
       },
       to,
       subject,
-      html,
-    });
+      html
+    })
   }
 }
