@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EmailModule } from './email/email.module';
 import { RedisModule } from './redis/redis.module';
 import { Permission } from './user/entities/permission.entity';
 import { Role } from './user/entities/role.entity';
@@ -29,6 +30,7 @@ import { UserModule } from './user/user.module';
     }),
     UserModule,
     RedisModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
