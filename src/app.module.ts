@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AppController } from './app.controller'
@@ -33,6 +34,18 @@ import { UserModule } from './user/user.module'
           connectorPackage: 'mysql2',
           extra: {
             authPlugin: 'sha256_password'
+          }
+        }
+      },
+      inject: [ConfigService]
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      useFactory(configService: ConfigService) {
+        return {
+          secret: configService.get('JWT_SECRET'),
+          signOptions: {
+            expiresIn: '30m' // 默认 30 分钟
           }
         }
       },

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
-
+import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
 import { EmailService } from 'src/email/email.service'
 import { RedisService } from 'src/redis/redis.service'
 
@@ -9,7 +10,15 @@ import { UserService } from './user.service'
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  // constructor(private readonly userService: UserService) {}
+  @Inject(UserService)
+  userService: UserService
+
+  @Inject(ConfigService)
+  private configService: ConfigService
+
+  @Inject(JwtService)
+  private jwtService: JwtService
 
   @Inject(EmailService)
   private emailService: EmailService
@@ -44,11 +53,58 @@ export class UserController {
 
   @Post('login')
   async userLogin(@Body() loginUser: LoginUserDto) {
-    return this.userService.login(loginUser, false)
+    const vo = await this.userService.login(loginUser, false)
+
+    vo.accessToken = this.jwtService.sign(
+      {
+        userId: vo.userInfo.id,
+        username: vo.userInfo.username,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions
+      },
+      {
+        expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
+      }
+    )
+
+    vo.refreshToken = this.jwtService.sign(
+      {
+        userId: vo.userInfo.id
+      },
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+      }
+    )
+
+    return vo
   }
 
   @Post('admin/login')
   async adminLogin(@Body() loginUser: LoginUserDto) {
-    return this.userService.login(loginUser, true)
+    const vo = await this.userService.login(loginUser, true)
+
+    vo.accessToken = this.jwtService.sign(
+      {
+        userId: vo.userInfo.id,
+        username: vo.userInfo.username,
+        email: vo.userInfo.email,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions
+      },
+      {
+        expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
+      }
+    )
+
+    vo.refreshToken = this.jwtService.sign(
+      {
+        userId: vo.userInfo.id
+      },
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+      }
+    )
+
+    return vo
   }
 }
