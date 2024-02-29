@@ -3,6 +3,7 @@ import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import { EmailService } from 'src/email/email.service'
 import { RedisService } from 'src/redis/redis.service'
 
+import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UserService } from './user.service'
 
@@ -39,5 +40,15 @@ export class UserController {
   async initData() {
     await this.userService.initData()
     return 'done'
+  }
+
+  @Post('login')
+  async userLogin(@Body() loginUser: LoginUserDto) {
+    return this.userService.login(loginUser, false)
+  }
+
+  @Post('admin/login')
+  async adminLogin(@Body() loginUser: LoginUserDto) {
+    return this.userService.login(loginUser, true)
   }
 }
