@@ -34,4 +34,10 @@ export class UserController {
   async register(@Body() registerUser: RegisterUserDto) {
     return this.userService.register(registerUser)
   }
+
+  @Get('init-data')
+  async initData() {
+    await this.userService.initData()
+    return 'done'
+  }
 }
