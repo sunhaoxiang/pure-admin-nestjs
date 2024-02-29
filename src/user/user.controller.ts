@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Inject, Post, Query, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from 'src/email/email.service'
@@ -106,5 +106,79 @@ export class UserController {
     )
 
     return vo
+  }
+
+  @Get('refresh')
+  async refresh(@Query('refreshToken') refreshToken: string) {
+    try {
+      const data = this.jwtService.verify(refreshToken)
+
+      const user = await this.userService.findUserById(data.userId, false)
+
+      const signedAccessToken = this.jwtService.sign(
+        {
+          userId: user.id,
+          username: user.username,
+          roles: user.roles,
+          permissions: user.permissions
+        },
+        {
+          expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
+        }
+      )
+
+      const signedRefreshToken = this.jwtService.sign(
+        {
+          userId: user.id
+        },
+        {
+          expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+        }
+      )
+
+      return {
+        accessToken: signedAccessToken,
+        refreshToken: signedRefreshToken
+      }
+    } catch (e) {
+      throw new UnauthorizedException('token 已失效，请重新登录')
+    }
+  }
+
+  @Get('admin/refresh')
+  async adminRefresh(@Query('refreshToken') refreshToken: string) {
+    try {
+      const data = this.jwtService.verify(refreshToken)
+
+      const user = await this.userService.findUserById(data.userId, true)
+
+      const signedAccessToken = this.jwtService.sign(
+        {
+          userId: user.id,
+          username: user.username,
+          roles: user.roles,
+          permissions: user.permissions
+        },
+        {
+          expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
+        }
+      )
+
+      const signedRefreshToken = this.jwtService.sign(
+        {
+          userId: user.id
+        },
+        {
+          expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+        }
+      )
+
+      return {
+        accessToken: signedAccessToken,
+        refreshToken: signedRefreshToken
+      }
+    } catch (e) {
+      throw new UnauthorizedException('token 已失效，请重新登录')
+    }
   }
 }
