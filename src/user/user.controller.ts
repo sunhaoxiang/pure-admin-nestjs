@@ -1,12 +1,14 @@
 import { Body, Controller, Get, Inject, Post, Query, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { RequireLogin, UserInfo } from 'src/custom.decorator'
 import { EmailService } from 'src/email/email.service'
 import { RedisService } from 'src/redis/redis.service'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UserService } from './user.service'
+import { UserDetailVo } from './vo/user-detail.vo'
 
 @Controller('user')
 export class UserController {
@@ -179,5 +181,23 @@ export class UserController {
     } catch (e) {
       throw new UnauthorizedException('token 已失效，请重新登录')
     }
+  }
+
+  @Get('info')
+  @RequireLogin()
+  async info(@UserInfo('userId') userId: number) {
+    const user = await this.userService.findUserDetailById(userId)
+
+    const vo = new UserDetailVo()
+    vo.id = user.id
+    vo.email = user.email
+    vo.username = user.username
+    vo.headPic = user.headPic
+    vo.phoneNumber = user.phoneNumber
+    vo.nickName = user.nickName
+    vo.createTime = user.createTime
+    vo.isFrozen = user.isFrozen
+
+    return vo
   }
 }

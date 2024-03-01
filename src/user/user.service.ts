@@ -168,4 +168,12 @@ export class UserService {
       }, [])
     }
   }
+
+  findUserDetailById(userId: number) {
+    return this.userRepository.findOne({
+      where: {
+        id: userId
+      }
+    })
+  }
 }
