@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { Permission } from './entities/permission.entity'
 import { Role } from './entities/role.entity'
 import { User } from './entities/user.entity'
@@ -175,5 +176,31 @@ export class UserService {
         id: userId
       }
     })
+  }
+
+  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.redisService.get(`update_password_captcha_${passwordDto.email}`)
+
+    if (!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST)
+    }
+
+    if (passwordDto.captcha !== captcha) {
+      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
+    }
+
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId
+    })
+
+    foundUser.password = md5(passwordDto.password)
+
+    try {
+      await this.userRepository.save(foundUser)
+      return '密码修改成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      return '密码修改失败'
+    }
   }
 }

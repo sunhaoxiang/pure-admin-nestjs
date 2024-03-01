@@ -7,6 +7,7 @@ import { RedisService } from 'src/redis/redis.service'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UserService } from './user.service'
 import { UserDetailVo } from './vo/user-detail.vo'
 
@@ -199,5 +200,14 @@ export class UserController {
     vo.isFrozen = user.isFrozen
 
     return vo
+  }
+
+  @Post(['update_password', 'admin/update_password'])
+  @RequireLogin()
+  async updatePassword(
+    @UserInfo('userId') userId: number,
+    @Body() passwordDto: UpdateUserPasswordDto
+  ) {
+    return this.userService.updatePassword(userId, passwordDto)
   }
 }
