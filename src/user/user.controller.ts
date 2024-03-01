@@ -210,4 +210,18 @@ export class UserController {
   ) {
     return this.userService.updatePassword(userId, passwordDto)
   }
+
+  @Get('update_password/captcha')
+  async updatePasswordCaptcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8)
+
+    await this.redisService.set(`update_password_captcha_${address}`, code, 10 * 60)
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更改密码验证码',
+      html: `<p>你的更改密码验证码是 ${code}</p>`
+    })
+    return '发送成功'
+  }
 }
