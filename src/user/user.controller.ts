@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Inject, Post, Query, UnauthorizedException } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Inject,
+  Post,
+  Query,
+  UnauthorizedException
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { RequireLogin, UserInfo } from 'src/custom.decorator'
 import { EmailService } from 'src/email/email.service'
 import { RedisService } from 'src/redis/redis.service'
+import { generateParseIntPipe } from 'src/utils'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
@@ -213,6 +223,7 @@ export class UserController {
   }
 
   @Get('update_password/captcha')
+  @RequireLogin()
   async updatePasswordCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
@@ -233,6 +244,7 @@ export class UserController {
   }
 
   @Get('update/captcha')
+  @RequireLogin()
   async updateCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
@@ -247,8 +259,21 @@ export class UserController {
   }
 
   @Get('freeze')
+  @RequireLogin()
   async freeze(@Query('id') userId: number) {
     await this.userService.freezeUserById(userId)
     return 'success'
+  }
+
+  @Get('list')
+  @RequireLogin()
+  async list(
+    @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo')) pageNo: number,
+    @Query('pageSize', new DefaultValuePipe(2), generateParseIntPipe('pageSize')) pageSize: number,
+    @Query('username') username: string,
+    @Query('nickName') nickName: string,
+    @Query('email') email: string
+  ) {
+    return this.userService.findUsers(username, nickName, email, pageNo, pageSize)
   }
 }

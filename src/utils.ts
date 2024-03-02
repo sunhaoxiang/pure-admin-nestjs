@@ -8,7 +8,7 @@ export function md5(str) {
   return hash.digest('hex')
 }
 
-export function generateParseIntPipe(name) {
+export function generateParseIntPipe(name: string) {
   return new ParseIntPipe({
     exceptionFactory() {
       throw new BadRequestException(`${name} 应该传数字`)

@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/c
 import { InjectRepository } from '@nestjs/typeorm'
 import { RedisService } from 'src/redis/redis.service'
 import { md5 } from 'src/utils'
-import { Repository } from 'typeorm'
+import { Like, Repository } from 'typeorm'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
@@ -12,6 +12,7 @@ import { Permission } from './entities/permission.entity'
 import { Role } from './entities/role.entity'
 import { User } from './entities/user.entity'
 import { LoginUserVo } from './vo/login-user.vo'
+import { UserListVo } from './vo/user-list.vo'
 
 @Injectable()
 export class UserService {
@@ -244,5 +245,49 @@ export class UserService {
     user.isFrozen = true
 
     await this.userRepository.save(user)
+  }
+
+  async findUsers(
+    username: string,
+    nickName: string,
+    email: string,
+    pageNo: number,
+    pageSize: number
+  ) {
+    const skipCount = (pageNo - 1) * pageSize
+
+    const condition: Record<string, any> = {}
+
+    if (username) {
+      condition.username = Like(`%${username}%`)
+    }
+    if (nickName) {
+      condition.nickName = Like(`%${nickName}%`)
+    }
+    if (email) {
+      condition.email = Like(`%${email}%`)
+    }
+
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      select: [
+        'id',
+        'username',
+        'nickName',
+        'email',
+        'phoneNumber',
+        'isFrozen',
+        'headPic',
+        'createTime'
+      ],
+      skip: skipCount,
+      take: pageSize,
+      where: condition
+    })
+
+    const vo = new UserListVo()
+
+    vo.users = users
+    vo.totalCount = totalCount
+    return vo
   }
 }
