@@ -245,4 +245,10 @@ export class UserController {
     })
     return '发送成功'
   }
+
+  @Get('freeze')
+  async freeze(@Query('id') userId: number) {
+    await this.userService.freezeUserById(userId)
+    return 'success'
+  }
 }
