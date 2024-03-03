@@ -30,6 +30,7 @@ import { UpdateUserDto } from './dto/udpate-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UserService } from './user.service'
 import { LoginUserVo } from './vo/login-user.vo'
+import { RefreshTokenVo } from './vo/refresh-token.vo'
 import { UserDetailVo } from './vo/user-detail.vo'
 
 @Controller('user')
@@ -182,6 +183,22 @@ export class UserController {
   }
 
   @Get('refresh')
+  @ApiQuery({
+    name: 'refreshToken',
+    type: String,
+    description: '刷新 token',
+    required: true,
+    example: 'xxxxxxxxyyyyyyyyzzzzz'
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'token 已失效，请重新登录'
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '刷新成功',
+    type: RefreshTokenVo
+  })
   async refresh(@Query('refreshToken') refreshToken: string) {
     try {
       const data = this.jwtService.verify(refreshToken)
@@ -209,16 +226,33 @@ export class UserController {
         }
       )
 
-      return {
-        accessToken: signedAccessToken,
-        refreshToken: signedRefreshToken
-      }
+      const vo = new RefreshTokenVo()
+      vo.accessToken = signedAccessToken
+      vo.refreshToken = signedRefreshToken
+
+      return vo
     } catch (e) {
       throw new UnauthorizedException('token 已失效，请重新登录')
     }
   }
 
   @Get('admin/refresh')
+  @ApiQuery({
+    name: 'refreshToken',
+    type: String,
+    description: '刷新 token',
+    required: true,
+    example: 'xxxxxxxxyyyyyyyyzzzzz'
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'token 已失效，请重新登录'
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '刷新成功',
+    type: RefreshTokenVo
+  })
   async adminRefresh(@Query('refreshToken') refreshToken: string) {
     try {
       const data = this.jwtService.verify(refreshToken)
@@ -246,10 +280,11 @@ export class UserController {
         }
       )
 
-      return {
-        accessToken: signedAccessToken,
-        refreshToken: signedRefreshToken
-      }
+      const vo = new RefreshTokenVo()
+      vo.accessToken = signedAccessToken
+      vo.refreshToken = signedRefreshToken
+
+      return vo
     } catch (e) {
       throw new UnauthorizedException('token 已失效，请重新登录')
     }
