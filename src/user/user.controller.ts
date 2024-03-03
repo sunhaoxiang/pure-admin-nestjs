@@ -3,6 +3,7 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  HttpStatus,
   Inject,
   Post,
   Query,
@@ -10,6 +11,14 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiProperty,
+  ApiQuery,
+  ApiResponse,
+  ApiTags
+} from '@nestjs/swagger'
 import { RequireLogin, UserInfo } from 'src/custom.decorator'
 import { EmailService } from 'src/email/email.service'
 import { RedisService } from 'src/redis/redis.service'
@@ -23,6 +32,7 @@ import { UserService } from './user.service'
 import { UserDetailVo } from './vo/user-detail.vo'
 
 @Controller('user')
+@ApiTags('用户管理模块')
 export class UserController {
   @Inject(UserService)
   userService: UserService
@@ -40,6 +50,18 @@ export class UserController {
   private redisService: RedisService
 
   @Get('register-captcha')
+  @ApiQuery({
+    name: 'address',
+    type: String,
+    description: '邮箱地址',
+    required: true,
+    example: 'xxx@xx.com'
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '发送成功',
+    type: String
+  })
   async captcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
@@ -54,6 +76,17 @@ export class UserController {
   }
 
   @Post('register')
+  @ApiBody({ type: RegisterUserDto })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: '验证码已失效/验证码不正确/用户已存在',
+    type: String
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '注册成功/失败',
+    type: String
+  })
   async register(@Body() registerUser: RegisterUserDto) {
     return this.userService.register(registerUser)
   }
