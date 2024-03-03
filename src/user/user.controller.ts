@@ -333,7 +333,13 @@ export class UserController {
 
   @Get('update_password/captcha')
   @RequireLogin()
-  async updatePasswordCaptcha(@Query('address') address: string) {
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '发送成功',
+    type: String
+  })
+  @ApiBearerAuth()
+  async updatePasswordCaptcha(@UserInfo('email') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
     await this.redisService.set(`update_password_captcha_${address}`, code, 10 * 60)
@@ -354,7 +360,13 @@ export class UserController {
 
   @Get('update/captcha')
   @RequireLogin()
-  async updateCaptcha(@Query('address') address: string) {
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '发送成功',
+    type: String
+  })
+  @ApiBearerAuth()
+  async updateCaptcha(@UserInfo('email') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
     await this.redisService.set(`update_user_captcha_${address}`, code, 10 * 60)
