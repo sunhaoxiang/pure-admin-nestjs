@@ -292,12 +292,12 @@ export class UserController {
 
   @Get('info')
   @RequireLogin()
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'success',
     type: UserDetailVo
   })
-  @ApiBearerAuth()
   async info(@UserInfo('userId') userId: number) {
     const user = await this.userService.findUserDetailById(userId)
 
@@ -316,6 +316,7 @@ export class UserController {
 
   @Post(['update_password', 'admin/update_password'])
   @RequireLogin()
+  @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserPasswordDto
   })
@@ -323,7 +324,6 @@ export class UserController {
     type: String,
     description: '密码修改成功'
   })
-  @ApiBearerAuth()
   async updatePassword(
     @UserInfo('userId') userId: number,
     @Body() passwordDto: UpdateUserPasswordDto
@@ -333,12 +333,12 @@ export class UserController {
 
   @Get('update_password/captcha')
   @RequireLogin()
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: '发送成功',
     type: String
   })
-  @ApiBearerAuth()
   async updatePasswordCaptcha(@UserInfo('email') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
@@ -354,6 +354,19 @@ export class UserController {
 
   @Post(['update', 'admin/update'])
   @RequireLogin()
+  @ApiBearerAuth()
+  @ApiBody({
+    type: UpdateUserDto
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: '验证码已失效/不正确'
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '更新成功',
+    type: String
+  })
   update(@UserInfo('userId') userId: number, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(userId, updateUserDto)
   }
