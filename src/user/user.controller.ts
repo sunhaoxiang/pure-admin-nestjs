@@ -32,6 +32,7 @@ import { UserService } from './user.service'
 import { LoginUserVo } from './vo/login-user.vo'
 import { RefreshTokenVo } from './vo/refresh-token.vo'
 import { UserDetailVo } from './vo/user-detail.vo'
+import { UserListVo } from './vo/user-list.vo'
 
 @Controller('user')
 @ApiTags('用户管理模块')
@@ -411,9 +412,39 @@ export class UserController {
 
   @Get('list')
   @RequireLogin()
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'pageNo',
+    description: '第几页',
+    type: Number
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    description: '每页多少条',
+    type: Number
+  })
+  @ApiQuery({
+    name: 'username',
+    description: '用户名',
+    type: Number
+  })
+  @ApiQuery({
+    name: 'nickName',
+    description: '昵称',
+    type: Number
+  })
+  @ApiQuery({
+    name: 'email',
+    description: '邮箱地址',
+    type: Number
+  })
+  @ApiResponse({
+    type: UserListVo,
+    description: '用户列表'
+  })
   async list(
     @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo')) pageNo: number,
-    @Query('pageSize', new DefaultValuePipe(2), generateParseIntPipe('pageSize')) pageSize: number,
+    @Query('pageSize', new DefaultValuePipe(10), generateParseIntPipe('pageSize')) pageSize: number,
     @Query('username') username: string,
     @Query('nickName') nickName: string,
     @Query('email') email: string
