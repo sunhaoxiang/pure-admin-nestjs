@@ -292,6 +292,12 @@ export class UserController {
 
   @Get('info')
   @RequireLogin()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'success',
+    type: UserDetailVo
+  })
+  @ApiBearerAuth()
   async info(@UserInfo('userId') userId: number) {
     const user = await this.userService.findUserDetailById(userId)
 

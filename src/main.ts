@@ -20,6 +20,10 @@ async function bootstrap() {
     .setTitle('A Admin')
     .setDescription('api 接口文档')
     .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http',
+      description: '基于 jwt 的认证'
+    })
     .build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api-doc', app, document)
