@@ -394,6 +394,16 @@ export class UserController {
 
   @Get('freeze')
   @RequireLogin()
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'id',
+    description: 'userId',
+    type: Number
+  })
+  @ApiResponse({
+    type: String,
+    description: 'success'
+  })
   async freeze(@Query('id') userId: number) {
     await this.userService.freezeUserById(userId)
     return 'success'
