@@ -316,6 +316,14 @@ export class UserController {
 
   @Post(['update_password', 'admin/update_password'])
   @RequireLogin()
+  @ApiBody({
+    type: UpdateUserPasswordDto
+  })
+  @ApiResponse({
+    type: String,
+    description: '密码修改成功'
+  })
+  @ApiBearerAuth()
   async updatePassword(
     @UserInfo('userId') userId: number,
     @Body() passwordDto: UpdateUserPasswordDto
