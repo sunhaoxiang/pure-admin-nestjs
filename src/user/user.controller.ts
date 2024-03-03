@@ -29,6 +29,7 @@ import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserDto } from './dto/udpate-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UserService } from './user.service'
+import { LoginUserVo } from './vo/login-user.vo'
 import { UserDetailVo } from './vo/user-detail.vo'
 
 @Controller('user')
@@ -98,6 +99,19 @@ export class UserController {
   }
 
   @Post('login')
+  @ApiBody({
+    type: LoginUserDto
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: '用户不存在/密码错误',
+    type: String
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '用户信息和 token',
+    type: LoginUserVo
+  })
   async userLogin(@Body() loginUser: LoginUserDto) {
     const vo = await this.userService.login(loginUser, false)
 
