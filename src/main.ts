@@ -16,6 +16,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new InvokeRecordInterceptor())
   app.useGlobalFilters(new CustomExceptionFilter())
 
+  app.enableCors()
+
   const config = new DocumentBuilder()
     .setTitle('A Admin')
     .setDescription('api 接口文档')
