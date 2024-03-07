@@ -19,7 +19,7 @@ async function bootstrap() {
   app.enableCors()
 
   const config = new DocumentBuilder()
-    .setTitle('A Admin')
+    .setTitle('Easy Admin')
     .setDescription('api 接口文档')
     .setVersion('1.0')
     .addBearerAuth({

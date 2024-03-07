@@ -21,7 +21,7 @@ export class EmailService {
   async sendMail({ to, subject, html }) {
     await this.transporter.sendMail({
       from: {
-        name: 'A Admin',
+        name: 'Easy Admin',
         address: this.configService.get('NODEMAILER_AUTH_USER')
       },
       to,
