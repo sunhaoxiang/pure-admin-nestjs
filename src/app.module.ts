@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { getEnvPath } from './common/helper'
 import { EmailModule } from './email/email.module'
 import { LoginGuard } from './login.guard'
 import { PermissionGuard } from './permission.guard'
@@ -15,11 +16,13 @@ import { Role } from './user/entities/role.entity'
 import { User } from './user/entities/user.entity'
 import { UserModule } from './user/user.module'
 
+const envFilePath: string = getEnvPath(`${__dirname}/common/env`)
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: 'src/.env'
+      envFilePath: [envFilePath],
+      isGlobal: true
     }),
     TypeOrmModule.forRootAsync({
       useFactory(configService: ConfigService) {
