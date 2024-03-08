@@ -28,11 +28,11 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/env`)
       useFactory(configService: ConfigService) {
         return {
           type: 'mysql',
-          host: configService.get('MYSQL_SERVER_HOST'),
-          port: configService.get('MYSQL_SERVER_PORT'),
-          username: configService.get('MYSQL_SERVER_USERNAME'),
-          password: configService.get('MYSQL_SERVER_PASSWORD'),
-          database: configService.get('MYSQL_SERVER_DATABASE'),
+          host: configService.get('DB_SERVER_HOST'),
+          port: configService.get('DB_SERVER_PORT'),
+          username: configService.get('DB_SERVER_USERNAME'),
+          password: configService.get('DB_SERVER_PASSWORD'),
+          database: configService.get('DB_SERVER_DATABASE'),
           synchronize: true,
           logging: true,
           entities: [User, Role, Permission],
