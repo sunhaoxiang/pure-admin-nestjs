@@ -7,8 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { getEnvPath } from './common/helper'
-import dbConfig from './config/db.config'
-import jwtConfig from './config/jwt.config'
+import { dbConfig, jwtConfig, redisConfig } from './config'
 import { EmailModule } from './email/email.module'
 import { LoginGuard } from './login.guard'
 import { PermissionGuard } from './permission.guard'
@@ -22,7 +21,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/env`)
     ConfigModule.forRoot({
       envFilePath: [envFilePath],
       isGlobal: true,
-      load: [dbConfig, jwtConfig]
+      load: [dbConfig, redisConfig, jwtConfig]
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -31,7 +30,15 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/env`)
         ...(await configService.get('db'))
       })
     }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        ...(await configService.get('redis'))
+      })
+    }),
     JwtModule.registerAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       global: true,
       useFactory: async (configService: ConfigService) => ({
@@ -39,7 +46,6 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/env`)
       })
     }),
     UserModule,
-    RedisModule,
     EmailModule
   ],
   controllers: [AppController],
