@@ -1,12 +1,8 @@
-import { DynamicModule, Global, Module, ModuleMetadata, Provider } from '@nestjs/common'
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { createClient, RedisClientType } from 'redis'
+import { createClient } from 'redis'
 
 import { RedisService } from './redis.service'
-
-// export interface RedisOptionsFactory {
-//   createJwtOptions(): Promise<RedisModuleOptions> | RedisModuleOptions
-// }
 
 interface RedisConfig {
   host: string
