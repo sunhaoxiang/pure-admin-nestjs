@@ -23,11 +23,7 @@ export interface NodemailerModuleOptions {
 }
 
 @Global()
-@Module({
-  // controllers: [EmailController],
-  // providers: [EmailService],
-  // exports: [EmailService]
-})
+@Module({})
 export class NodemailerModule {
   static forRootAsync(nodemailerModuleOptions: NodemailerModuleOptions): DynamicModule {
     const nodemailerTransporterProvider = {

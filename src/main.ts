@@ -6,7 +6,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
 import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
 import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
-import { AppModule } from '@/modules/app.module'
+
+import { AppModule } from './app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
