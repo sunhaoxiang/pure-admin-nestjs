@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
-import { AppModule } from './app.module'
-import { CustomExceptionFilter } from './custom-exception.filter'
-import { FormatResponseInterceptor } from './format-response.interceptor'
-import { InvokeRecordInterceptor } from './invoke-record.interceptor'
+import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
+import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
+import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
+import { AppModule } from '@/modules/app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

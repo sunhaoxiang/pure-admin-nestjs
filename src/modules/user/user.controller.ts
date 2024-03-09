@@ -11,18 +11,12 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiProperty,
-  ApiQuery,
-  ApiResponse,
-  ApiTags
-} from '@nestjs/swagger'
-import { RequireLogin, UserInfo } from 'src/custom.decorator'
-import { NodemailerService } from 'src/nodemailer/nodemailer.service'
-import { RedisService } from 'src/redis/redis.service'
-import { generateParseIntPipe } from 'src/utils'
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
+
+import { RequireLogin, UserInfo } from '@/decorators/custom.decorator'
+import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
+import { RedisService } from '@/modules/redis/redis.service'
+import { generateParseIntPipe } from '@/utils'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'

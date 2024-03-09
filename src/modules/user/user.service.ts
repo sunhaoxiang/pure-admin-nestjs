@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { RedisService } from 'src/redis/redis.service'
-import { md5 } from 'src/utils'
+
 import { Like, Repository } from 'typeorm'
+
+import { RedisService } from '@/modules/redis/redis.service'
+import { md5 } from '@/utils'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'

@@ -4,13 +4,15 @@ import { APP_GUARD } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
+import { getEnvPath } from '@/common/helper'
+import { dbConfig, jwtConfig, nodemailerConfig, redisConfig } from '@/config'
+import { LoginGuard } from '@/guards/login.guard'
+
+import { PermissionGuard } from '@/guards/permission.guard'
+
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { getEnvPath } from './common/helper'
-import { dbConfig, jwtConfig, nodemailerConfig, redisConfig } from './config'
-import { LoginGuard } from './login.guard'
 import { NodemailerModule } from './nodemailer/nodemailer.module'
-import { PermissionGuard } from './permission.guard'
 import { RedisModule } from './redis/redis.module'
 import { UserModule } from './user/user.module'
 
