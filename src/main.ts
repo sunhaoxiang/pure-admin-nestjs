@@ -1,21 +1,11 @@
-import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-
-import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
-import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
-import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
 
 import { AppModule } from './app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
-
-  app.useGlobalPipes(new ValidationPipe())
-  app.useGlobalInterceptors(new FormatResponseInterceptor())
-  app.useGlobalInterceptors(new InvokeRecordInterceptor())
-  app.useGlobalFilters(new CustomExceptionFilter())
 
   app.enableCors()
 
