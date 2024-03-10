@@ -62,10 +62,6 @@ const envFilePath: string = getEnvPath(`${__dirname}/env`)
   providers: [
     AppService,
     {
-      provide: APP_PIPE,
-      useClass: ValidationPipe // 全局管道
-    },
-    {
       provide: APP_GUARD,
       useClass: LoginGuard // 登录守卫
     },
@@ -80,6 +76,10 @@ const envFilePath: string = getEnvPath(`${__dirname}/env`)
     {
       provide: APP_INTERCEPTOR,
       useClass: InvokeRecordInterceptor // 调用记录拦戫器
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe // 全局管道
     },
     {
       provide: APP_FILTER,
