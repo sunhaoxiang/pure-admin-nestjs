@@ -13,17 +13,14 @@ import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.intercepto
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { UserModule } from '@/modules/user/user.module'
-import { getEnvPath } from '@/utils'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
-const envFilePath: string = getEnvPath(`${__dirname}/env`)
-
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [envFilePath],
+      envFilePath: ['.env', '.env.local', '.env.dev', 'env.test', '.env.prod'],
       isGlobal: true,
       load: [dbConfig, redisConfig, nodemailerConfig, jwtConfig]
     }),
