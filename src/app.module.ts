@@ -20,10 +20,6 @@ import { AppService } from './app.service'
 
 const envFilePath: string = getEnvPath(`${__dirname}/env`)
 
-console.log('envFilePath')
-console.log(envFilePath)
-console.log('envFilePath')
-
 @Module({
   imports: [
     ConfigModule.forRoot({
