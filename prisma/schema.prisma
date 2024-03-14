@@ -1,14 +1,59 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model permissions {
+  id               Int                @id @default(autoincrement())
+  code             String             @db.VarChar(20)
+  description      String             @db.VarChar(100)
+  role_permissions role_permissions[]
+}
+
+model role_permissions {
+  rolesId       Int
+  permissionsId Int
+  roles         roles       @relation(fields: [rolesId], references: [id], onDelete: Cascade)
+  permissions   permissions @relation(fields: [permissionsId], references: [id], onDelete: Cascade)
+
+  @@id([rolesId, permissionsId])
+  @@index([rolesId])
+  @@index([permissionsId])
+}
+
+model roles {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(20)
+  role_permissions role_permissions[]
+  user_roles       user_roles[]
+}
+
+model user_roles {
+  usersId Int
+  rolesId Int
+  roles   roles @relation(fields: [rolesId], references: [id], onDelete: Cascade)
+  users   users @relation(fields: [usersId], references: [id], onDelete: Cascade)
+
+  @@id([usersId, rolesId])
+  @@index([rolesId])
+  @@index([usersId])
+}
+
+model users {
+  id          Int          @id @default(autoincrement())
+  username    String       @unique() @db.VarChar(50)
+  password    String       @db.VarChar(50)
+  nick_name   String       @db.VarChar(50)
+  email       String       @db.VarChar(50)
+  headPic     String?      @db.VarChar(100)
+  phoneNumber String?      @db.VarChar(20)
+  isFrozen    Int          @default(0) @db.TinyInt
+  isAdmin     Int          @default(0) @db.TinyInt
+  createTime  DateTime     @default(now()) @db.DateTime(6)
+  updateTime  DateTime     @default(now()) @db.DateTime(6)
+  user_roles  user_roles[]
 }
