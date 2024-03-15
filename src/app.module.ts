@@ -24,7 +24,7 @@ const envFilePath: string = getEnvPath(__dirname)
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [envFilePath],
+      envFilePath,
       isGlobal: true,
       load: [dbConfig, redisConfig, nodemailerConfig, jwtConfig]
     }),
