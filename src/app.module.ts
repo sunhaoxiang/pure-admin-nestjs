@@ -11,6 +11,7 @@ import { PermissionGuard } from '@/guards/permission.guard'
 import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
 import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
+import { PrismaService } from '@/modules/prisma/prisma.service'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { UserModule } from '@/modules/user/user.module'
 import { getEnvPath } from '@/utils'
@@ -18,7 +19,7 @@ import { getEnvPath } from '@/utils'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
-const envFilePath: string = getEnvPath(`${__dirname}/env`)
+const envFilePath: string = getEnvPath(__dirname)
 
 @Module({
   imports: [
@@ -61,6 +62,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/env`)
   controllers: [AppController],
   providers: [
     AppService,
+    ConfigService,
+    PrismaService,
     {
       provide: APP_GUARD,
       useClass: LoginGuard // 登录守卫
