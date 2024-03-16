@@ -4,14 +4,14 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { dbConfig, jwtConfig, nodemailerConfig, redisConfig } from '@/config'
+import { databaseConfig, dbConfig, jwtConfig, nodemailerConfig, redisConfig } from '@/config'
 import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
 import { LoginGuard } from '@/guards/login.guard'
 import { PermissionGuard } from '@/guards/permission.guard'
 import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
 import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
-import { PrismaService } from '@/modules/prisma/prisma.service'
+import { PrismaModule } from '@/modules/prisma/prisma.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { UserModule } from '@/modules/user/user.module'
 import { getEnvPath } from '@/utils'
@@ -26,7 +26,14 @@ const envFilePath: string = getEnvPath(__dirname)
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
-      load: [dbConfig, redisConfig, nodemailerConfig, jwtConfig]
+      load: [dbConfig, databaseConfig, redisConfig, nodemailerConfig, jwtConfig]
+    }),
+    PrismaModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        ...(await configService.get('database'))
+      })
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -63,7 +70,6 @@ const envFilePath: string = getEnvPath(__dirname)
   providers: [
     AppService,
     ConfigService,
-    PrismaService,
     {
       provide: APP_GUARD,
       useClass: LoginGuard // 登录守卫
