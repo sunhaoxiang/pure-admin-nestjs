@@ -4,7 +4,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { databaseConfig, dbConfig, jwtConfig, nodemailerConfig, redisConfig } from '@/config'
+import config from '@/config'
 import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
 import { LoginGuard } from '@/guards/login.guard'
 import { PermissionGuard } from '@/guards/permission.guard'
@@ -26,7 +26,7 @@ const envFilePath: string = getEnvPath(__dirname)
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
-      load: [dbConfig, databaseConfig, redisConfig, nodemailerConfig, jwtConfig]
+      load: [...config]
     }),
     PrismaModule.forRootAsync({
       imports: [ConfigModule],

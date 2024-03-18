@@ -38,18 +38,4 @@ export class PrismaModule {
       exports: [PrismaService]
     }
   }
-
-  // static forRoot(databaseUrl: string): DynamicModule {
-  //   return {
-  //     module: PrismaModule,
-  //     providers: [
-  //       {
-  //         provide: 'DATABASE_URL',
-  //         useValue: databaseUrl
-  //       },
-  //       PrismaService
-  //     ],
-  //     exports: [PrismaService]
-  //   }
-  // }
 }

@@ -1,5 +1,7 @@
-export { default as dbConfig } from './db.config'
-export { default as databaseConfig } from './database.config'
-export { default as redisConfig } from './redis.config'
-export { default as jwtConfig } from './jwt.config'
-export { default as nodemailerConfig } from './nodemailer.config'
+import databaseConfig from './database.config'
+import dbConfig from './db.config'
+import jwtConfig from './jwt.config'
+import nodemailerConfig from './nodemailer.config'
+import redisConfig from './redis.config'
+
+export default [dbConfig, databaseConfig, redisConfig, nodemailerConfig, jwtConfig]
