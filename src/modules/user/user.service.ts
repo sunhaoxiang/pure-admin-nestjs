@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-
+import { Prisma } from '@prisma/client'
 import { Like, Repository } from 'typeorm'
 
+import { PrismaService } from '@/modules/prisma/prisma.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { md5 } from '@/utils'
 
@@ -10,8 +11,6 @@ import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserDto } from './dto/udpate-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
-import { Permission } from './entities/permission.entity'
-import { Role } from './entities/role.entity'
 import { User } from './entities/user.entity'
 import { LoginUserVo } from './vo/login-user.vo'
 import { UserListVo } from './vo/user-list.vo'
@@ -23,53 +22,42 @@ export class UserService {
   @InjectRepository(User)
   private userRepository: Repository<User>
 
-  @InjectRepository(Role)
-  private roleRepository: Repository<Role>
-
-  @InjectRepository(Permission)
-  private permissionRepository: Repository<Permission>
+  @Inject(PrismaService)
+  private prisma: PrismaService
 
   @Inject(RedisService)
   private redisService: RedisService
 
   async initData() {
-    const user1 = new User()
-    user1.username = 'zhangsan'
-    user1.password = md5('111111')
-    user1.email = 'xxx@xx.com'
-    user1.isAdmin = true
-    user1.nickName = '张三'
-    user1.phoneNumber = '13233323333'
-
-    const user2 = new User()
-    user2.username = 'lisi'
-    user2.password = md5('222222')
-    user2.email = 'yy@yy.com'
-    user2.nickName = '李四'
-
-    const role1 = new Role()
-    role1.name = '管理员'
-
-    const role2 = new Role()
-    role2.name = '普通用户'
-
-    const permission1 = new Permission()
-    permission1.code = 'ccc'
-    permission1.description = '访问 ccc 接口'
-
-    const permission2 = new Permission()
-    permission2.code = 'ddd'
-    permission2.description = '访问 ddd 接口'
-
-    user1.roles = [role1]
-    user2.roles = [role2]
-
-    role1.permissions = [permission1, permission2]
-    role2.permissions = [permission1]
-
-    await this.permissionRepository.save([permission1, permission2])
-    await this.roleRepository.save([role1, role2])
-    await this.userRepository.save([user1, user2])
+    await this.prisma.user.create({
+      data: {
+        username: 'zhangsan',
+        password: md5('111111'),
+        email: 'xxx@xx.com',
+        nickName: '张三',
+        phoneNumber: '13233323333',
+        isAdmin: true,
+        roles: {
+          create: {
+            role: {
+              create: {
+                name: '管理员',
+                permissions: {
+                  create: {
+                    permission: {
+                      create: {
+                        code: 'ccc',
+                        description: '访问 ccc 接口'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
   }
 
   async register(user: RegisterUserDto) {
@@ -84,22 +72,27 @@ export class UserService {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
 
-    const foundUser = await this.userRepository.findOneBy({
-      username: user.username
+    const foundUser = await this.prisma.user.findUnique({
+      where: {
+        username: user.username
+      }
     })
 
     if (foundUser) {
       throw new HttpException('用户已存在', HttpStatus.BAD_REQUEST)
     }
 
-    const newUser = new User()
-    newUser.username = user.username
-    newUser.password = md5(user.password)
-    newUser.email = user.email
-    newUser.nickName = user.nickName
+    const newUser = {
+      username: user.username,
+      password: md5(user.password),
+      email: user.email,
+      nickName: user.nickName
+    }
 
     try {
-      await this.userRepository.save(newUser)
+      await this.prisma.user.create({
+        data: newUser
+      })
       return '注册成功'
     } catch (e) {
       this.logger.error(e, UserService)
@@ -150,23 +143,36 @@ export class UserService {
   }
 
   async findUserById(userId: number, isAdmin: boolean) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
-        id: userId,
-        isAdmin
+        id: userId
       },
-      relations: ['roles', 'roles.permissions']
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     })
 
     return {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      roles: user.roles.map(item => item.name),
+      roles: user.roles.map(item => item.roleId),
       permissions: user.roles.reduce((arr, item) => {
-        item.permissions.forEach(permission => {
-          if (arr.indexOf(permission) === -1) {
-            arr.push(permission)
+        item.role.permissions.forEach(permission => {
+          if (arr.indexOf(permission.permission.code) === -1) {
+            arr.push(permission.permission.code)
           }
         })
         return arr

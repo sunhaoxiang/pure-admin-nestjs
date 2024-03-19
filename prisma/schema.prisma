@@ -7,53 +7,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model permissions {
-  id               Int                @id @default(autoincrement())
-  code             String             @db.VarChar(20)
-  description      String             @db.VarChar(100)
-  role_permissions role_permissions[]
+model User {
+  id          Int        @id @default(autoincrement())
+  username    String     @unique() @db.VarChar(50)
+  password    String     @db.VarChar(50)
+  nickName    String?    @db.VarChar(50)
+  email       String     @db.VarChar(50)
+  headPic     String?    @db.VarChar(100)
+  phoneNumber String?    @db.VarChar(20)
+  isFrozen    Boolean    @default(false) @db.TinyInt
+  isAdmin     Boolean    @default(false) @db.TinyInt
+  createTime  DateTime   @default(now()) @db.DateTime(6)
+  updateTime  DateTime   @default(now()) @db.DateTime(6)
+  roles       UserRole[]
 }
 
-model role_permissions {
-  rolesId       Int
-  permissionsId Int
-  roles         roles       @relation(fields: [rolesId], references: [id], onDelete: Cascade)
-  permissions   permissions @relation(fields: [permissionsId], references: [id], onDelete: Cascade)
-
-  @@id([rolesId, permissionsId])
-  @@index([rolesId])
-  @@index([permissionsId])
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @db.VarChar(20)
+  permissions RolePermission[]
+  users       UserRole[]
 }
 
-model roles {
-  id               Int                @id @default(autoincrement())
-  name             String             @db.VarChar(20)
-  role_permissions role_permissions[]
-  user_roles       user_roles[]
+model Permission {
+  id          Int              @id @default(autoincrement())
+  code        String           @db.VarChar(20)
+  description String           @db.VarChar(100)
+  roles       RolePermission[]
 }
 
-model user_roles {
-  usersId Int
-  rolesId Int
-  roles   roles @relation(fields: [rolesId], references: [id], onDelete: Cascade)
-  users   users @relation(fields: [usersId], references: [id], onDelete: Cascade)
+model RolePermission {
+  id Int @id @default(autoincrement())
 
-  @@id([usersId, rolesId])
-  @@index([rolesId])
-  @@index([usersId])
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
 }
 
-model users {
-  id          Int          @id @default(autoincrement())
-  username    String       @unique() @db.VarChar(50)
-  password    String       @db.VarChar(50)
-  nick_name   String       @db.VarChar(50)
-  email       String       @db.VarChar(50)
-  headPic     String?      @db.VarChar(100)
-  phoneNumber String?      @db.VarChar(20)
-  isFrozen    Int          @default(0) @db.TinyInt
-  isAdmin     Int          @default(0) @db.TinyInt
-  createTime  DateTime     @default(now()) @db.DateTime(6)
-  updateTime  DateTime     @default(now()) @db.DateTime(6)
-  user_roles  user_roles[]
+model UserRole {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+  @@index([userId])
 }

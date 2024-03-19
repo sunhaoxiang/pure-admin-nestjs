@@ -94,6 +94,12 @@ export class UserController {
     return 'done'
   }
 
+  @Get('test-data')
+  async testData() {
+    return this.userService.findUserById(3, true)
+    // return 'done'
+  }
+
   @Post('login')
   @ApiBody({
     type: LoginUserDto
@@ -204,8 +210,8 @@ export class UserController {
         {
           userId: user.id,
           username: user.username,
-          roles: user.roles,
-          permissions: user.permissions
+          roles: user.roles
+          // permissions: user.permissions
         },
         {
           expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
@@ -258,8 +264,8 @@ export class UserController {
         {
           userId: user.id,
           username: user.username,
-          roles: user.roles,
-          permissions: user.permissions
+          roles: user.roles
+          // permissions: user.permissions
         },
         {
           expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'

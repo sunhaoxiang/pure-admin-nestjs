@@ -12,6 +12,8 @@
     "start:dev": "NODE_ENV=dev nest start --watch",
     "start:test": "NODE_ENV=test nest start --watch",
     "start:prod": "NODE_ENV=prod nest start --watch",
+    "db-push": "dotenv -e .env.local -- prisma db push",
+    "db-pull": "dotenv -e .env.local -- prisma db pull",
     "migrate-reset": "dotenv -e .env.local -- prisma migrate reset",
     "migrate-dev": "dotenv -e .env.local -- prisma migrate dev",
     "start:debug": "nest start --debug --watch",
