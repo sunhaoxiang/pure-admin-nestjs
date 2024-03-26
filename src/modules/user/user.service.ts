@@ -1,7 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import { Prisma } from '@prisma/client'
-import { Like, Repository } from 'typeorm'
 
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { RedisService } from '@/modules/redis/redis.service'
@@ -18,9 +16,6 @@ import { UserListVo } from './vo/user-list.vo'
 @Injectable()
 export class UserService {
   private logger = new Logger()
-
-  @InjectRepository(User)
-  private userRepository: Repository<User>
 
   @Inject(PrismaService)
   private prisma: PrismaService
@@ -101,14 +96,6 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
-    // const user = await this.userRepository.findOne({
-    //   where: {
-    //     username: loginUserDto.username,
-    //     isAdmin
-    //   },
-    //   relations: ['roles', 'roles.permissions']
-    // })
-
     const user = await this.prisma.user.findUnique({
       where: {
         username: loginUserDto.username,
@@ -221,9 +208,6 @@ export class UserService {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
 
-    // const foundUser = await this.userRepository.findOneBy({
-    //   id: userId
-    // })
     const foundUser = await this.prisma.user.findUnique({
       where: {
         id: userId
@@ -233,7 +217,6 @@ export class UserService {
     foundUser.password = md5(passwordDto.password)
 
     try {
-      // await this.userRepository.save(foundUser)
       await this.prisma.user.update({
         where: {
           id: userId
@@ -260,10 +243,6 @@ export class UserService {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
 
-    // const foundUser = await this.userRepository.findOneBy({
-    //   id: userId
-    // })
-
     const foundUser = await this.prisma.user.findUnique({
       where: {
         id: userId
@@ -284,7 +263,6 @@ export class UserService {
     }
 
     try {
-      // await this.userRepository.save(foundUser)
       await this.prisma.user.update({
         where: {
           id: userId

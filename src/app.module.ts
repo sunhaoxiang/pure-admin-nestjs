@@ -2,7 +2,6 @@ import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
-import { TypeOrmModule } from '@nestjs/typeorm'
 
 import config from '@/config'
 import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
@@ -33,13 +32,6 @@ const envFilePath: string = getEnvPath(__dirname)
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         ...(await configService.get('database'))
-      })
-    }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        ...(await configService.get('db'))
       })
     }),
     RedisModule.forRootAsync({
