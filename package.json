@@ -12,10 +12,11 @@
     "start:dev": "NODE_ENV=dev nest start --watch",
     "start:test": "NODE_ENV=test nest start --watch",
     "start:prod": "NODE_ENV=prod nest start --watch",
-    "db-push": "dotenv -e .env.local -- prisma db push",
-    "db-pull": "dotenv -e .env.local -- prisma db pull",
-    "migrate-reset": "dotenv -e .env.local -- prisma migrate reset",
-    "migrate-dev": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:db-push": "dotenv -e .env.local -- prisma db push",
+    "prisma:db-pull": "dotenv -e .env.local -- prisma db pull",
+    "prisma:db-seed": "dotenv -e .env.local -- prisma db seed",
+    "prisma:migrate-reset": "dotenv -e .env.local -- prisma migrate reset",
+    "prisma:migrate-dev": "dotenv -e .env.local -- prisma migrate dev",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "prettier": "prettier --write \"{src,apps,libs,test}/**/*.ts\"",
@@ -24,6 +25,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
