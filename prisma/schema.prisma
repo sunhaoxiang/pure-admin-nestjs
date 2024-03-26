@@ -11,15 +11,17 @@ model User {
   id          Int        @id @default(autoincrement())
   username    String     @unique() @db.VarChar(50)
   password    String     @db.VarChar(50)
-  nickName    String?    @db.VarChar(50)
+  nickName    String?    @map("nike_name") @db.VarChar(50)
   email       String     @db.VarChar(50)
-  headPic     String?    @db.VarChar(100)
-  phoneNumber String?    @db.VarChar(20)
-  isFrozen    Boolean    @default(false) @db.TinyInt
-  isAdmin     Boolean    @default(false) @db.TinyInt
-  createTime  DateTime   @default(now()) @db.DateTime(6)
-  updateTime  DateTime   @default(now()) @db.DateTime(6)
+  headPic     String?    @map("head_pic") @db.VarChar(100)
+  phoneNumber String?    @map("phone_number") @db.VarChar(20)
+  isFrozen    Boolean    @default(false) @map("is_frozen") @db.TinyInt
+  isAdmin     Boolean    @default(false) @map("is_admin") @db.TinyInt
+  createTime  DateTime   @default(now()) @map("create_time") @db.DateTime(6)
+  updateTime  DateTime   @default(now()) @map("update_time") @db.DateTime(6)
   roles       UserRole[]
+
+  @@map("user")
 }
 
 model Role {
@@ -27,6 +29,8 @@ model Role {
   name        String           @db.VarChar(20)
   permissions RolePermission[]
   users       UserRole[]
+
+  @@map("role")
 }
 
 model Permission {
@@ -34,32 +38,36 @@ model Permission {
   code        String           @db.VarChar(20)
   description String           @db.VarChar(100)
   roles       RolePermission[]
+
+  @@map("permission")
 }
 
 model RolePermission {
   id Int @id @default(autoincrement())
 
-  roleId Int
+  roleId Int  @map("role_id")
   role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  permissionId Int
+  permissionId Int        @map("permission_id")
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
   @@index([roleId])
   @@index([permissionId])
+  @@map("role_permission")
 }
 
 model UserRole {
   id Int @id @default(autoincrement())
 
-  userId Int
+  userId Int  @map("user_id")
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  roleId Int
+  roleId Int  @map("role_id")
   role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@index([roleId])
   @@index([userId])
+  @@map("user_role")
 }
