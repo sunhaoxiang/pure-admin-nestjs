@@ -10,13 +10,11 @@ import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import { Observable } from 'rxjs'
 
-import { Permission } from '@/modules/user/entities/permission.entity'
-
 interface JwtUserData {
   userId: number
   username: string
-  roles: string[]
-  permissions: Permission[]
+  roles: number[]
+  permissions: string[]
 }
 
 declare module 'express' {

@@ -14,9 +14,9 @@ async function main() {
   const newUser: Prisma.UserCreateInput = {
     username: 'admin',
     password: md5('123456'),
-    email: 'xxx@xx.com',
-    nickName: '张三',
-    phoneNumber: '13233323333',
+    email: 'admin@easy-admin.com',
+    nickName: 'admin',
+    phoneNumber: '13333333333',
     isAdmin: true
   }
   const user = await prisma.user.create({

@@ -88,18 +88,6 @@ export class UserController {
     return this.userService.register(registerUser)
   }
 
-  @Get('init-data')
-  async initData() {
-    await this.userService.initData()
-    return 'done'
-  }
-
-  @Get('test-data')
-  async testData() {
-    return this.userService.findUserById(3, true)
-    // return 'done'
-  }
-
   @Post('login')
   @ApiBody({
     type: LoginUserDto

@@ -22,38 +22,6 @@ export class UserService {
   @Inject(RedisService)
   private redisService: RedisService
 
-  async initData() {
-    await this.prisma.user.create({
-      data: {
-        username: 'zhangsan',
-        password: md5('111111'),
-        email: 'xxx@xx.com',
-        nickName: '张三',
-        phoneNumber: '13233323333',
-        isAdmin: true,
-        roles: {
-          create: {
-            role: {
-              create: {
-                name: '管理员',
-                permissions: {
-                  create: {
-                    permission: {
-                      create: {
-                        code: 'ccc',
-                        description: '访问 ccc 接口'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-  }
-
   async register(user: RegisterUserDto) {
     const captcha = await this.redisService.get(`captcha_${user.email}`)
 
