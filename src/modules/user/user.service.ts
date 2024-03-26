@@ -101,12 +101,34 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
-    const user = await this.userRepository.findOne({
+    // const user = await this.userRepository.findOne({
+    //   where: {
+    //     username: loginUserDto.username,
+    //     isAdmin
+    //   },
+    //   relations: ['roles', 'roles.permissions']
+    // })
+
+    const user = await this.prisma.user.findUnique({
       where: {
         username: loginUserDto.username,
         isAdmin
       },
-      relations: ['roles', 'roles.permissions']
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     })
 
     if (!user) {
@@ -128,11 +150,11 @@ export class UserService {
       createTime: user.createTime.getTime(),
       isFrozen: user.isFrozen,
       isAdmin: user.isAdmin,
-      roles: user.roles.map(item => item.name),
+      roles: user.roles.map(item => item.roleId),
       permissions: user.roles.reduce((arr, item) => {
-        item.permissions.forEach(permission => {
-          if (arr.indexOf(permission) === -1) {
-            arr.push(permission)
+        item.role.permissions.forEach(permission => {
+          if (arr.indexOf(permission.permission.code) === -1) {
+            arr.push(permission.permission.code)
           }
         })
         return arr
@@ -181,7 +203,7 @@ export class UserService {
   }
 
   findUserDetailById(userId: number) {
-    return this.userRepository.findOne({
+    return this.prisma.user.findUnique({
       where: {
         id: userId
       }
@@ -199,14 +221,27 @@ export class UserService {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
 
-    const foundUser = await this.userRepository.findOneBy({
-      id: userId
+    // const foundUser = await this.userRepository.findOneBy({
+    //   id: userId
+    // })
+    const foundUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
     })
 
     foundUser.password = md5(passwordDto.password)
 
     try {
-      await this.userRepository.save(foundUser)
+      // await this.userRepository.save(foundUser)
+      await this.prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          password: md5(passwordDto.password)
+        }
+      })
       return '密码修改成功'
     } catch (e) {
       this.logger.error(e, UserService)
@@ -225,19 +260,37 @@ export class UserService {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
 
-    const foundUser = await this.userRepository.findOneBy({
-      id: userId
+    // const foundUser = await this.userRepository.findOneBy({
+    //   id: userId
+    // })
+
+    const foundUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
     })
 
+    if (!foundUser) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST)
+    }
+
+    const updateData: Prisma.UserUpdateInput = {}
+
     if (updateUserDto.nickName) {
-      foundUser.nickName = updateUserDto.nickName
+      updateData.nickName = updateUserDto.nickName
     }
     if (updateUserDto.headPic) {
-      foundUser.headPic = updateUserDto.headPic
+      updateData.headPic = updateUserDto.headPic
     }
 
     try {
-      await this.userRepository.save(foundUser)
+      // await this.userRepository.save(foundUser)
+      await this.prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: updateData
+      })
       return '用户信息修改成功'
     } catch (e) {
       this.logger.error(e, UserService)
@@ -246,13 +299,23 @@ export class UserService {
   }
 
   async freezeUserById(id: number) {
-    const user = await this.userRepository.findOneBy({
-      id
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id
+      }
     })
+    if (!user) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST)
+    }
 
-    user.isFrozen = true
-
-    await this.userRepository.save(user)
+    await this.prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        isFrozen: true
+      }
+    })
   }
 
   async findUsers(
@@ -264,33 +327,60 @@ export class UserService {
   ) {
     const skipCount = (pageNo - 1) * pageSize
 
-    const condition: Record<string, any> = {}
+    // const condition: Record<string, any> = {}
+    //
+    // if (username) {
+    //   condition.username = Like(`%${username}%`)
+    // }
+    // if (nickName) {
+    //   condition.nickName = Like(`%${nickName}%`)
+    // }
+    // if (email) {
+    //   condition.email = Like(`%${email}%`)
+    // }
+
+    const condition: Prisma.UserWhereInput = {}
 
     if (username) {
-      condition.username = Like(`%${username}%`)
+      condition.username = {
+        contains: username
+      }
     }
     if (nickName) {
-      condition.nickName = Like(`%${nickName}%`)
+      condition.nickName = {
+        contains: nickName
+      }
     }
     if (email) {
-      condition.email = Like(`%${email}%`)
+      condition.email = {
+        contains: email
+      }
     }
 
-    const [users, totalCount] = await this.userRepository.findAndCount({
-      select: [
-        'id',
-        'username',
-        'nickName',
-        'email',
-        'phoneNumber',
-        'isFrozen',
-        'headPic',
-        'createTime'
-      ],
-      skip: skipCount,
-      take: pageSize,
-      where: condition
-    })
+    const [users, totalCount] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          nickName: true,
+          email: true,
+          phoneNumber: true,
+          isFrozen: true,
+          headPic: true,
+          createTime: true
+        },
+        skip: skipCount,
+        take: pageSize,
+        where: {
+          ...condition
+        }
+      }),
+      this.prisma.user.count({
+        where: {
+          ...condition
+        }
+      })
+    ])
 
     const vo = new UserListVo()
 

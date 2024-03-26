@@ -29,7 +29,7 @@ class UserInfo {
   createTime: number
 
   @ApiProperty({ example: ['管理员'] })
-  roles: string[]
+  roles: number[]
 
   @ApiProperty({ example: 'query_aaa' })
   permissions: string[]
