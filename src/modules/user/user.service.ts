@@ -9,7 +9,6 @@ import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserDto } from './dto/udpate-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
-import { User } from './entities/user.entity'
 import { LoginUserVo } from './vo/login-user.vo'
 import { UserListVo } from './vo/user-list.vo'
 
