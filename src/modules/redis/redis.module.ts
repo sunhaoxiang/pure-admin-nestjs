@@ -8,6 +8,7 @@ interface RedisConfig {
   host: string
   port: number
   database: number
+  password: string
 }
 
 export interface RedisModuleOptions {
@@ -30,7 +31,8 @@ export class RedisModule {
             host: options.host,
             port: options.port
           },
-          database: options.database
+          database: options.database,
+          password: options.password
         })
         await client.connect()
         return client
