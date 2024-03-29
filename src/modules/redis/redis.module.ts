@@ -32,7 +32,7 @@ export class RedisModule {
             port: options.port
           },
           database: options.database,
-          password: options.password
+          ...(options.password ? { password: options.password } : {})
         })
         await client.connect()
         return client
