@@ -28,7 +28,7 @@ class User {
 
 export class UserListVo {
   @ApiProperty({
-    type: [User]
+    type: [User],
   })
   users: User[]
 

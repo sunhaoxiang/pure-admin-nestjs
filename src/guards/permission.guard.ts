@@ -1,20 +1,14 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-  UnauthorizedException
-} from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Request } from 'express'
+import { FastifyRequest } from 'fastify'
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
-  @Inject(Reflector)
-  private reflector: Reflector
+  constructor(private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest()
+    const httpContext = context.switchToHttp()
+    const request = httpContext.getRequest<FastifyRequest>()
 
     if (!request.user) {
       return true
@@ -24,7 +18,7 @@ export class PermissionGuard implements CanActivate {
 
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>('require-permission', [
       context.getClass(),
-      context.getHandler()
+      context.getHandler(),
     ])
 
     if (!requiredPermissions) {

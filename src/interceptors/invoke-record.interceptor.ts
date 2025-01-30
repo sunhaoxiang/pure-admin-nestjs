@@ -1,39 +1,35 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common'
-import { Request, Response } from 'express'
+import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from '@nestjs/common'
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Observable, tap } from 'rxjs'
+import { Logger } from 'winston'
 
 @Injectable()
 export class InvokeRecordInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(InvokeRecordInterceptor.name)
+  constructor(@Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger) {}
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>
+    next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest<Request>()
-    const response = context.switchToHttp().getResponse<Response>()
+    const httpContext = context.switchToHttp()
+
+    const request = httpContext.getRequest<FastifyRequest>()
+    const response = httpContext.getResponse<FastifyReply>()
 
     const userAgent = request.headers['user-agent']
+    const { ip, method, url } = request
 
-    const { ip, method, path } = request
+    const userInfo = request.user?.id ? `USER:${request.user?.username}(${request.user?.id})` : 'USER:guest'
 
-    this.logger.debug(
-      `${method} ${path} ${ip} ${userAgent}: ${context.getClass().name} ${
-        context.getHandler().name
-      } invoked...`
-    )
-
-    this.logger.debug(`user: ${request.user?.userId}, ${request.user?.username}`)
-
-    const now = Date.now()
+    const currentTime = Date.now()
 
     return next.handle().pipe(
-      tap(res => {
-        this.logger.debug(
-          `${method} ${path} ${ip} ${userAgent}: ${response.statusCode}: ${Date.now() - now}ms`
+      tap((res) => {
+        this.logger.http(
+          `[${method} › ${url}] ${userInfo} IP:${ip} UA:${userAgent} CODE:${response.statusCode} RES[${Date.now() - currentTime}ms]:${JSON.stringify(res)}`,
         )
-        this.logger.debug(`Response: ${JSON.stringify(res)}`)
-      })
+      }),
     )
   }
 }

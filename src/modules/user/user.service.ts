@@ -1,223 +1,191 @@
-import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
+import { Logger } from 'winston'
 
+import { CacheService } from '@/modules/cache/cache.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { RedisService } from '@/modules/redis/redis.service'
-import { md5 } from '@/utils'
+import { hashPassword, md5 } from '@/utils'
 
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
-import { UpdateUserDto } from './dto/udpate-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 import { LoginUserVo } from './vo/login-user.vo'
 import { UserListVo } from './vo/user-list.vo'
 
+export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
+  include: {
+    roles: {
+      include: {
+        role: {
+          include: {
+            permissions: {
+              include: {
+                permission: true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}>
+
+export interface TransformedUserInfo {
+  id: number
+  username: string
+  roles: number[]
+  permissions: string[]
+}
+
 @Injectable()
 export class UserService {
-  private logger = new Logger()
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheService: CacheService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
 
-  @Inject(PrismaService)
-  private prisma: PrismaService
+  findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
+    return this.prisma.user.findUnique({
+      where,
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  }
 
-  @Inject(RedisService)
-  private redisService: RedisService
+  async getUserInfo(where: Prisma.UserWhereUniqueInput) {
+    const user = await this.findUserWithRoles(where)
+
+    return this.transformUserInfo(user)
+  }
+
+  transformUserInfo(user: UserWithRolesAndPermissions): TransformedUserInfo {
+    return {
+      id: user.id,
+      username: user.username,
+      roles: user.roles.map(item => item.roleId),
+      permissions: user.roles.reduce((arr, item) => {
+        item.role.permissions.forEach((permission) => {
+          if (!arr.includes(permission.permission.code)) {
+            arr.push(permission.permission.code)
+          }
+        })
+        return arr
+      }, [] as string[]),
+    }
+  }
 
   async register(user: RegisterUserDto) {
-    const captcha = await this.redisService.get(`captcha_${user.email}`)
+    const captcha = await this.cacheService.get(`captcha_${user.email}`)
 
-    console.log(`captcha_${user.email}`, captcha)
+    // console.log(`captcha_${user.email}`, captcha)
     if (!captcha) {
-      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码已失效' }, HttpStatus.GONE)
     }
 
     if (user.captcha !== captcha) {
-      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码不正确' }, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
     const foundUser = await this.prisma.user.findUnique({
       where: {
-        username: user.username
-      }
+        username: user.username,
+      },
     })
 
     if (foundUser) {
-      throw new HttpException('用户已存在', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '用户已存在' }, HttpStatus.CONFLICT)
     }
 
     const newUser = {
       username: user.username,
-      password: md5(user.password),
+      password: await hashPassword(user.password),
       email: user.email,
-      nickName: user.nickName
+      nickName: user.nickName,
     }
 
     try {
       await this.prisma.user.create({
-        data: newUser
+        data: newUser,
       })
-      return '注册成功'
-    } catch (e) {
+      return { message: '注册成功' }
+    }
+    catch (e) {
       this.logger.error(e, UserService)
-      return '注册失败'
+      return { message: '注册失败' }
     }
   }
 
-  async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        username: loginUserDto.username,
-        isAdmin
-      },
-      include: {
-        roles: {
-          include: {
-            role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-
-    if (!user) {
-      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST)
-    }
-
-    if (user.password !== md5(loginUserDto.password)) {
-      throw new HttpException('密码错误', HttpStatus.BAD_REQUEST)
-    }
-
-    const vo = new LoginUserVo()
-    vo.userInfo = {
-      id: user.id,
-      username: user.username,
-      nickName: user.nickName,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      headPic: user.headPic,
-      createTime: user.createTime.getTime(),
-      isFrozen: user.isFrozen,
-      isAdmin: user.isAdmin,
-      roles: user.roles.map(item => item.roleId),
-      permissions: user.roles.reduce((arr, item) => {
-        item.role.permissions.forEach(permission => {
-          if (arr.indexOf(permission.permission.code) === -1) {
-            arr.push(permission.permission.code)
-          }
-        })
-        return arr
-      }, [])
-    }
-
-    return vo
-  }
-
-  async findUserById(userId: number, isAdmin: boolean) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      include: {
-        roles: {
-          include: {
-            role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-
-    return {
-      id: user.id,
-      username: user.username,
-      isAdmin: user.isAdmin,
-      roles: user.roles.map(item => item.roleId),
-      permissions: user.roles.reduce((arr, item) => {
-        item.role.permissions.forEach(permission => {
-          if (arr.indexOf(permission.permission.code) === -1) {
-            arr.push(permission.permission.code)
-          }
-        })
-        return arr
-      }, [])
-    }
-  }
-
-  findUserDetailById(userId: number) {
+  findUserDetailById(id: number) {
     return this.prisma.user.findUnique({
       where: {
-        id: userId
-      }
+        id,
+      },
     })
   }
 
-  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
-    const captcha = await this.redisService.get(`update_password_captcha_${passwordDto.email}`)
+  async updatePassword(id: number, passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.cacheService.get(`update_password_captcha_${passwordDto.email}`)
 
     if (!captcha) {
-      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码已失效' }, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
     if (passwordDto.captcha !== captcha) {
-      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码不正确' }, HttpStatus.BAD_REQUEST)
     }
-
-    const foundUser = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      }
-    })
-
-    foundUser.password = md5(passwordDto.password)
 
     try {
       await this.prisma.user.update({
         where: {
-          id: userId
+          id,
         },
         data: {
-          password: md5(passwordDto.password)
-        }
+          password: await hashPassword(passwordDto.password),
+        },
       })
-      return '密码修改成功'
-    } catch (e) {
+      return { message: '密码修改成功' }
+    }
+    catch (e) {
       this.logger.error(e, UserService)
-      return '密码修改失败'
+      return { message: '密码修改失败' }
     }
   }
 
-  async update(userId: number, updateUserDto: UpdateUserDto) {
-    const captcha = await this.redisService.get(`update_user_captcha_${updateUserDto.email}`)
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const captcha = await this.cacheService.get(`update_user_captcha_${updateUserDto.email}`)
 
     if (!captcha) {
-      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码已失效' }, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
     if (updateUserDto.captcha !== captcha) {
-      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '验证码不正确' }, HttpStatus.BAD_REQUEST)
     }
 
     const foundUser = await this.prisma.user.findUnique({
       where: {
-        id: userId
-      }
+        id,
+      },
     })
 
     if (!foundUser) {
-      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '用户不存在' }, HttpStatus.NOT_FOUND)
     }
 
     const updateData: Prisma.UserUpdateInput = {}
@@ -232,34 +200,35 @@ export class UserService {
     try {
       await this.prisma.user.update({
         where: {
-          id: userId
+          id,
         },
-        data: updateData
+        data: updateData,
       })
-      return '用户信息修改成功'
-    } catch (e) {
+      return { message: '用户信息修改成功' }
+    }
+    catch (e) {
       this.logger.error(e, UserService)
-      return '用户信息修改成功'
+      return { message: '用户信息修改失败' }
     }
   }
 
   async freezeUserById(id: number) {
     const user = await this.prisma.user.findUnique({
       where: {
-        id
-      }
+        id,
+      },
     })
     if (!user) {
-      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST)
+      throw new HttpException({ message: '用户不存在' }, HttpStatus.NOT_FOUND)
     }
 
     await this.prisma.user.update({
       where: {
-        id
+        id,
       },
       data: {
-        isFrozen: true
-      }
+        isFrozen: true,
+      },
     })
   }
 
@@ -267,38 +236,26 @@ export class UserService {
     username: string,
     nickName: string,
     email: string,
-    pageNo: number,
-    pageSize: number
+    page: number,
+    pageSize: number,
   ) {
-    const skipCount = (pageNo - 1) * pageSize
-
-    // const condition: Record<string, any> = {}
-    //
-    // if (username) {
-    //   condition.username = Like(`%${username}%`)
-    // }
-    // if (nickName) {
-    //   condition.nickName = Like(`%${nickName}%`)
-    // }
-    // if (email) {
-    //   condition.email = Like(`%${email}%`)
-    // }
+    const skipCount = (page - 1) * pageSize
 
     const condition: Prisma.UserWhereInput = {}
 
     if (username) {
       condition.username = {
-        contains: username
+        contains: username,
       }
     }
     if (nickName) {
       condition.nickName = {
-        contains: nickName
+        contains: nickName,
       }
     }
     if (email) {
       condition.email = {
-        contains: email
+        contains: email,
       }
     }
 
@@ -312,19 +269,15 @@ export class UserService {
           phoneNumber: true,
           isFrozen: true,
           headPic: true,
-          createTime: true
+          createTime: true,
         },
         skip: skipCount,
         take: pageSize,
-        where: {
-          ...condition
-        }
+        where: condition,
       }),
       this.prisma.user.count({
-        where: {
-          ...condition
-        }
-      })
+        where: condition,
+      }),
     ])
 
     const vo = new UserListVo()

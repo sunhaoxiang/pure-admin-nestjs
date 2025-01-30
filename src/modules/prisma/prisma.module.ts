@@ -24,7 +24,7 @@ export class PrismaModule {
         const options = await prismaModuleOptions.useFactory(configService)
         return options.url
       },
-      inject: prismaModuleOptions.inject || []
+      inject: prismaModuleOptions.inject || [],
     }
 
     return {
@@ -33,9 +33,9 @@ export class PrismaModule {
       providers: [
         databaseUrlProvider,
         PrismaService,
-        ...(prismaModuleOptions.extraProviders ?? [])
+        ...(prismaModuleOptions.extraProviders ?? []),
       ],
-      exports: [PrismaService]
+      exports: [PrismaService],
     }
   }
 }

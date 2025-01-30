@@ -1,5 +1,4 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common'
-
 import { ConfigService } from '@nestjs/config'
 import { createTransport } from 'nodemailer'
 
@@ -32,7 +31,7 @@ export class NodemailerModule {
         const options = await nodemailerModuleOptions.useFactory(configService)
         return createTransport(options)
       },
-      inject: nodemailerModuleOptions.inject || []
+      inject: nodemailerModuleOptions.inject || [],
     }
 
     return {
@@ -41,9 +40,9 @@ export class NodemailerModule {
       providers: [
         nodemailerTransporterProvider,
         NodemailerService,
-        ...(nodemailerModuleOptions.extraProviders ?? [])
+        ...(nodemailerModuleOptions.extraProviders ?? []),
       ],
-      exports: [NodemailerService]
+      exports: [NodemailerService],
     }
   }
 }

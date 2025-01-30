@@ -2,90 +2,177 @@ import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
+import { ScheduleModule } from '@nestjs/schedule'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
+import 'winston-daily-rotate-file'
+import { WinstonModule } from 'nest-winston'
+import winston from 'winston'
 
-import config from '@/config'
-import { CustomExceptionFilter } from '@/filters/custom-exception.filter'
-import { LoginGuard } from '@/guards/login.guard'
+import config from '@/configs'
+import { AllExceptionsFilter } from '@/filters/all-exception.filter'
+import { HttpExceptionFilter } from '@/filters/http-exception.filter'
+import { JwtAuthGuard } from '@/guards/jwt-auth.guard'
 import { PermissionGuard } from '@/guards/permission.guard'
 import { FormatResponseInterceptor } from '@/interceptors/format-response.interceptor'
 import { InvokeRecordInterceptor } from '@/interceptors/invoke-record.interceptor'
+import { AuthModule } from '@/modules/auth/auth.module'
+import { CacheModule } from '@/modules/cache/cache.module'
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
 import { PrismaModule } from '@/modules/prisma/prisma.module'
-import { RedisModule } from '@/modules/redis/redis.module'
 import { UserModule } from '@/modules/user/user.module'
-import { getEnvPath } from '@/utils'
+import { createLoggerOptions, defaultLogFormat, getEnvPath } from '@/utils'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
-const envFilePath: string = getEnvPath(__dirname)
+// 设置默认时区为东八区
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.tz.setDefault('Asia/Shanghai')
+
+const envFilePath = getEnvPath(__dirname)
+
+const logDir = 'log'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
-      load: [...config]
+      load: [...config],
     }),
+    ScheduleModule.forRoot(),
     PrismaModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        ...(await configService.get('database'))
-      })
+        ...(await configService.get('database')),
+      }),
     }),
-    RedisModule.forRootAsync({
+    CacheModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        ...(await configService.get('redis'))
-      })
-    }),
-    NodemailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        ...(await configService.get('nodemailer'))
-      })
+        ...(await configService.get('redis')),
+      }),
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       global: true,
       useFactory: async (configService: ConfigService) => ({
-        ...(await configService.get('jwt'))
-      })
+        ...(await configService.get('jwt')),
+      }),
     }),
-    UserModule
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ([
+        ...(await configService.get('throttler')),
+      ]),
+    }),
+    NodemailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        ...(await configService.get('nodemailer')),
+      }),
+    }),
+    WinstonModule.forRoot({
+      level: 'http',
+      transports: [
+        new winston.transports.Console({
+          format: defaultLogFormat(),
+        }),
+        new winston.transports.DailyRotateFile({
+          ...createLoggerOptions('http', logDir),
+          format: defaultLogFormat(true, 'http'),
+        }),
+        new winston.transports.DailyRotateFile({
+          ...createLoggerOptions('info', logDir),
+          format: defaultLogFormat(true, 'info'),
+        }),
+        new winston.transports.DailyRotateFile({
+          ...createLoggerOptions('error', logDir),
+          format: defaultLogFormat(true, 'error'),
+        }),
+      ],
+      exceptionHandlers: [
+        new winston.transports.DailyRotateFile({
+          ...createLoggerOptions('exception', logDir),
+          format: defaultLogFormat(),
+        }),
+      ],
+    }),
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     ConfigService,
+
+    // ---------------------------------------- 请求处理流程 ----------------------------------------
+    //    请求
+    //     ↓
+    //    中间件 (Middlewares) [自上而下按顺序执行]
+    //     ↓
+    //    守卫 (Guards) [自上而下按顺序执行]
+    //     ↓
+    //    拦截器 (Interceptors) [自上而下按顺序执行] (请求阶段)
+    //     ↓
+    //    管道 (Pipes) [自上而下按顺序执行]
+    //     ↓
+    //    路由处理器 (Route Handler)
+    //     ↓
+    //    拦截器 (Interceptors) [自下而上按顺序执行] (响应阶段)
+    //     ↓
+    //    异常过滤器 (Exception Filters) [自下而上按顺序执行]
+    //     ↓
+    //    响应
+
+    // ---------------------------------------- Guards ----------------------------------------
     {
       provide: APP_GUARD,
-      useClass: LoginGuard // 登录守卫
+      useClass: ThrottlerGuard, // 限流守卫
     },
     {
       provide: APP_GUARD,
-      useClass: PermissionGuard // 权限守卫
+      useClass: JwtAuthGuard, // JWT 授权守卫
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard, // 权限守卫
+    },
+
+    // ---------------------------------------- Interceptors ----------------------------------------
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: InvokeRecordInterceptor, // 调用记录拦截器
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: FormatResponseInterceptor // 格式化响应拦截器
+      useClass: FormatResponseInterceptor, // 格式化响应拦截器
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: InvokeRecordInterceptor // 调用记录拦戫器
-    },
+
+    // ---------------------------------------- Pipes ----------------------------------------
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe // 全局管道
+      useClass: ValidationPipe, // 数据验证管道
+    },
+
+    // ---------------------------------------- Exceptions Filters ----------------------------------------
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter, // 所有异常过滤器， 用于捕获除 HttpException 之外的异常
     },
     {
       provide: APP_FILTER,
-      useClass: CustomExceptionFilter // 自定义异常过滤器
-    }
-  ]
+      useClass: HttpExceptionFilter, // Http 异常过滤器
+    },
+  ],
 })
 export class AppModule {}

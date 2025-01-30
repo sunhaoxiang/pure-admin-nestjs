@@ -1,0 +1,25 @@
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @db.VarChar(20)
+  permissions RolePermission[]
+  users       UserRole[]
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  code        String           @db.VarChar(20)
+  description String           @db.VarChar(100)
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
