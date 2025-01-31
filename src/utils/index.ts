@@ -14,12 +14,6 @@ export function delay(ms: number): Promise<void> {
   })
 }
 
-export function md5(str: string) {
-  const hash = crypto.createHash('md5')
-  hash.update(str)
-  return hash.digest('hex')
-}
-
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.randomBytes(16).toString('hex')
   const derivedKey = await scryptAsync(password, salt, 64) as Buffer

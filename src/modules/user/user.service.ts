@@ -5,13 +5,11 @@ import { Logger } from 'winston'
 
 import { CacheService } from '@/modules/cache/cache.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { hashPassword, md5 } from '@/utils'
+import { hashPassword } from '@/utils'
 
-import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { LoginUserVo } from './vo/login-user.vo'
 import { UserListVo } from './vo/user-list.vo'
 
 export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{

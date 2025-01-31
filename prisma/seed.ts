@@ -4,12 +4,6 @@ import { promisify } from 'node:util'
 
 const scryptAsync = promisify(crypto.scrypt)
 
-function md5(str: string) {
-  const hash = crypto.createHash('md5')
-  hash.update(str)
-  return hash.digest('hex')
-}
-
 async function hashPassword(password: string): Promise<string> {
   const salt = crypto.randomBytes(16).toString('hex')
   const derivedKey = await scryptAsync(password, salt, 64) as Buffer

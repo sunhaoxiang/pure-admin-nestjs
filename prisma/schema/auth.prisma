@@ -8,6 +8,7 @@ model Role {
 model Permission {
   id          Int              @id @default(autoincrement())
   code        String           @db.VarChar(20)
+  name        String           @db.VarChar(20)
   description String           @db.VarChar(100)
   roles       RolePermission[]
 }
