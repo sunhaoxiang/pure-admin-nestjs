@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   NestInterceptor,
-  SetMetadata,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { FastifyRequest } from 'fastify'
@@ -12,13 +11,8 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Observable, of, tap } from 'rxjs'
 import { Logger } from 'winston'
 
+import { CACHE_KEY, CACHE_TTL_KEY } from '@/decorators'
 import { CacheService } from '@/modules/cache/cache.service'
-
-export const CACHE_KEY = 'CACHE'
-export const CACHE_TTL_KEY = 'CACHE_TTL'
-
-export const CacheKey = (prefix: string) => SetMetadata(CACHE_KEY, prefix)
-export const CacheTTL = (ttl: number) => SetMetadata(CACHE_TTL_KEY, ttl)
 
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {

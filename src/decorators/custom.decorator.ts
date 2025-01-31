@@ -1,16 +1,7 @@
-import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common'
-import { FastifyRequest } from 'fastify'
+import { SetMetadata } from '@nestjs/common'
 
-export function RequirePermission(...permissions: string[]) {
-  return SetMetadata('require-permission', permissions)
+export const REQUIRE_PERMISSIONS_KEY = 'REQUIRE_PERMISSIONS'
+
+export function Permissions(...permissions: string[]) {
+  return SetMetadata(REQUIRE_PERMISSIONS_KEY, permissions)
 }
-
-export const UserInfo = createParamDecorator((propertyKey: string, ctx: ExecutionContext) => {
-  const request = ctx.switchToHttp().getRequest<FastifyRequest>()
-
-  if (!request.user) {
-    return null
-  }
-
-  return propertyKey ? request.user[propertyKey] : request.user
-})

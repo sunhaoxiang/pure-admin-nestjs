@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt'
 import { AuthGuard } from '@nestjs/passport'
 import { FastifyRequest } from 'fastify'
 
-import { Public } from '@/decorators/is-public.decorator'
+import { Public } from '@/decorators'
 
 @Controller('auth')
 export class AuthController {
