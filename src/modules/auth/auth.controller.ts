@@ -22,15 +22,16 @@ export class AuthController {
   @Post('login')
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: FastifyRequest) {
-    const accessToken = this.jwtService.sign(
+    const token = this.jwtService.sign(
       {
         id: req.user.id,
         username: req.user.username,
-        roles: req.user.roles,
+        // roles: req.user.roles,
         permissions: req.user.permissions,
+        isAdmin: req.user.isAdmin,
       },
       {
-        expiresIn: this.configService.get('JWT_ACCESS_EXPIRES') || '30m',
+        expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
       },
     )
 
@@ -45,7 +46,7 @@ export class AuthController {
 
     return {
       userInfo: req.user,
-      accessToken,
+      token,
       refreshToken,
     }
   }

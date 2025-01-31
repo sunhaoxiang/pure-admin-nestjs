@@ -108,15 +108,16 @@ export class UserController {
 
       const user = await this.userService.getUserInfo({ id: data.id })
 
-      const signedAccessToken = this.jwtService.sign(
+      const signedToken = this.jwtService.sign(
         {
           id: user.id,
           username: user.username,
-          roles: user.roles,
+          // roles: user.roles,
           permissions: user.permissions,
+          isAdmin: user.isAdmin,
         },
         {
-          expiresIn: this.configService.get('JWT_ACCESS_EXPIRES') || '30m',
+          expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
         },
       )
 
@@ -130,7 +131,7 @@ export class UserController {
       )
 
       const vo = new RefreshTokenVo()
-      vo.accessToken = signedAccessToken
+      vo.token = signedToken
       vo.refreshToken = signedRefreshToken
 
       return vo

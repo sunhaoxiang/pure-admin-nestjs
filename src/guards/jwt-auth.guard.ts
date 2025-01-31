@@ -19,6 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true
     }
+
     return super.canActivate(context)
   }
 
@@ -27,6 +28,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw new UnauthorizedException('Token 失效，请重新登录')
     }
+
     return user
   }
 }

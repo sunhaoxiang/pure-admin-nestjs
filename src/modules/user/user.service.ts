@@ -33,8 +33,9 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
 export interface TransformedUserInfo {
   id: number
   username: string
-  roles: number[]
+  // roles: number[]
   permissions: string[]
+  isAdmin: boolean
 }
 
 @Injectable()
@@ -76,7 +77,7 @@ export class UserService {
     return {
       id: user.id,
       username: user.username,
-      roles: user.roles.map(item => item.roleId),
+      // roles: user.roles.map(item => item.roleId),
       permissions: user.roles.reduce((arr, item) => {
         item.role.permissions.forEach((permission) => {
           if (!arr.includes(permission.permission.code)) {
@@ -85,6 +86,7 @@ export class UserService {
         })
         return arr
       }, [] as string[]),
+      isAdmin: user.isAdmin,
     }
   }
 
