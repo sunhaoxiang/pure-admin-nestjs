@@ -33,7 +33,6 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
 export interface TransformedUserInfo {
   id: number
   username: string
-  // roles: number[]
   permissions: string[]
   isAdmin: boolean
 }
@@ -45,6 +44,10 @@ export class UserService {
     private readonly cacheService: CacheService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
+
+  findUser(args: Prisma.UserFindUniqueArgs) {
+    return this.prisma.user.findUnique(args)
+  }
 
   findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({

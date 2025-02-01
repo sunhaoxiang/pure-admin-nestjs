@@ -10,12 +10,14 @@ import { AuthGuard } from '@nestjs/passport'
 import { FastifyRequest } from 'fastify'
 
 import { Public } from '@/decorators'
+import { CacheService } from '@/modules/cache/cache.service'
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly cacheService: CacheService,
   ) {}
 
   @Public()
@@ -23,29 +25,20 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: FastifyRequest) {
     const token = this.jwtService.sign(
-      {
-        id: req.user.id,
-        username: req.user.username,
-        // roles: req.user.roles,
-        permissions: req.user.permissions,
-        isAdmin: req.user.isAdmin,
-      },
+      req.user,
       {
         expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
       },
     )
 
     const refreshToken = this.jwtService.sign(
-      {
-        id: req.user.id,
-      },
+      req.user,
       {
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
       },
     )
 
     return {
-      userInfo: req.user,
       token,
       refreshToken,
     }

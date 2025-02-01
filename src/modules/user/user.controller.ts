@@ -106,25 +106,26 @@ export class UserController {
     try {
       const data = this.jwtService.verify(refreshToken)
 
-      const user = await this.userService.getUserInfo({ id: data.id })
+      const user = await this.userService.findUser(
+        {
+          where: { id: data.id },
+          select: { id: true, username: true },
+        },
+      )
+
+      if (!user) {
+        throw new UnauthorizedException('token 已失效，请重新登录')
+      }
 
       const signedToken = this.jwtService.sign(
-        {
-          id: user.id,
-          username: user.username,
-          // roles: user.roles,
-          permissions: user.permissions,
-          isAdmin: user.isAdmin,
-        },
+        user,
         {
           expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
         },
       )
 
       const signedRefreshToken = this.jwtService.sign(
-        {
-          id: user.id,
-        },
+        user,
         {
           expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
         },

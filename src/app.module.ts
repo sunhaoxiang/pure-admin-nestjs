@@ -13,7 +13,7 @@ import winston from 'winston'
 
 import config from '@/configs'
 import { AllExceptionsFilter, HttpExceptionFilter } from '@/filters'
-import { JwtAuthGuard, PermissionGuard } from '@/guards'
+import { AuthGuard } from '@/guards'
 import { FormatResponseInterceptor, InvokeRecordInterceptor } from '@/interceptors'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { CacheModule } from '@/modules/cache/cache.module'
@@ -138,11 +138,7 @@ const logDir = 'log'
     },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard, // JWT 授权守卫
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionGuard, // 权限守卫
+      useClass: AuthGuard, // 权限守卫
     },
 
     // ---------------------------------------- Interceptors ----------------------------------------
