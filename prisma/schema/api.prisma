@@ -1,0 +1,21 @@
+model Api {
+  id            Int             @id @default(autoincrement())
+  parentId      Int?
+  type          ResourceType
+  name          String          @db.VarChar(50)
+  code          String          @unique @db.VarChar(50)
+  path          String?         @db.VarChar(100)
+  method        String?         @db.VarChar(10)
+  description   String?         @db.VarChar(100)
+  sort          Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  parent        Api?            @relation("ApiStructure", fields: [parentId], references: [id])
+  children      Api[]           @relation("ApiStructure")
+  roleApiAccess RoleApiAccess[]
+}
+
+enum ResourceType {
+  DIRECTORY
+  ENDPOINT
+}
