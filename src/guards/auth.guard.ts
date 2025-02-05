@@ -36,6 +36,12 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
     // const httpContext = context.switchToHttp()
     // const request = httpContext.getRequest<FastifyRequest>()
 
+    // const { method, url } = request.routeOptions
+
+    // console.log('--------------------------------')
+    // console.log(method, url)
+    // console.log('--------------------------------')
+
     // const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
     //   context.getClass(),
     //   context.getHandler(),

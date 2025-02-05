@@ -13,14 +13,27 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListVo } from './vo/user-list.vo'
 
 export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
-  include: {
+  select: {
+    id: true
+    username: true
+    nickName: true
+    email: true
+    headPic: true
+    phoneNumber: true
+    isAdmin: true
     roles: {
-      include: {
+      select: {
         role: {
-          include: {
-            permissions: {
-              include: {
-                permission: true
+          select: {
+            apis: {
+              select: {
+                api: {
+                  select: {
+                    code: true
+                    method: true
+                    path: true
+                  }
+                }
               }
             }
           }
@@ -33,7 +46,7 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
 export interface TransformedUserInfo {
   id: number
   username: string
-  permissions: string[]
+  apis: string[]
   isAdmin: boolean
 }
 
@@ -52,14 +65,27 @@ export class UserService {
   findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({
       where,
-      include: {
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        email: true,
+        headPic: true,
+        phoneNumber: true,
+        isAdmin: true,
         roles: {
-          include: {
+          select: {
             role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true,
+              select: {
+                apis: {
+                  select: {
+                    api: {
+                      select: {
+                        code: true,
+                        method: true,
+                        path: true,
+                      },
+                    },
                   },
                 },
               },
@@ -80,15 +106,9 @@ export class UserService {
     return {
       id: user.id,
       username: user.username,
-      // roles: user.roles.map(item => item.roleId),
-      permissions: user.roles.reduce((arr, item) => {
-        item.role.permissions.forEach((permission) => {
-          if (!arr.includes(permission.permission.code)) {
-            arr.push(permission.permission.code)
-          }
-        })
-        return arr
-      }, [] as string[]),
+      apis: user.roles
+        .flatMap(item => item.role.apis)
+        .map(item => item.api.code),
       isAdmin: user.isAdmin,
     }
   }

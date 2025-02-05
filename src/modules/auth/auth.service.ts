@@ -32,35 +32,35 @@ export class AuthService {
     return user
   }
 
-  async getAllPermissions() {
-    const cachedPermissions = await this.cacheService.get(CACHE_KEY_PERMISSIONS_ALL)
-    if (cachedPermissions) {
-      return JSON.parse(cachedPermissions)
-    }
+  // async getAllPermissions() {
+  //   const cachedPermissions = await this.cacheService.get(CACHE_KEY_PERMISSIONS_ALL)
+  //   if (cachedPermissions) {
+  //     return JSON.parse(cachedPermissions)
+  //   }
 
-    const result = await this.prismaService.permission.findMany()
-    const permissions = result.map(item => item.code)
-    await this.cacheService.set(CACHE_KEY_PERMISSIONS_ALL, JSON.stringify(permissions), CACHE_TTL_PERMISSIONS_ALL)
+  //   const result = await this.prismaService.permission.findMany()
+  //   const permissions = result.map(item => item.code)
+  //   await this.cacheService.set(CACHE_KEY_PERMISSIONS_ALL, JSON.stringify(permissions), CACHE_TTL_PERMISSIONS_ALL)
 
-    return permissions
-  }
+  //   return permissions
+  // }
 
-  async getUserAuthorizationInfo(userId: number): Promise<UserAuthorizationInfo> {
-    const cachedPermissions = await this.cacheService.get(`auth:permissions:${userId}`)
-    if (cachedPermissions) {
-      return JSON.parse(cachedPermissions)
-    }
+  // async getUserAuthorizationInfo(userId: number): Promise<UserAuthorizationInfo> {
+  //   const cachedPermissions = await this.cacheService.get(`auth:permissions:${userId}`)
+  //   if (cachedPermissions) {
+  //     return JSON.parse(cachedPermissions)
+  //   }
 
-    const user = await this.userService.findUserWithRoles({ id: userId })
-    const userAuthorizationInfo: UserAuthorizationInfo = this.userService.transformUserInfo(user)
+  //   const user = await this.userService.findUserWithRoles({ id: userId })
+  //   const userAuthorizationInfo: UserAuthorizationInfo = this.userService.transformUserInfo(user)
 
-    await this.cacheService.set(`auth:permissions:${userId}`, JSON.stringify(userAuthorizationInfo), 60 * 60 * 24)
+  //   await this.cacheService.set(`auth:permissions:${userId}`, JSON.stringify(userAuthorizationInfo), 60 * 60 * 24)
 
-    return userAuthorizationInfo
-  }
+  //   return userAuthorizationInfo
+  // }
 
-  async checkPermission(permission: string) {
-    const permissions = await this.getAllPermissions()
-    return permissions.includes(permission)
-  }
+  // async checkPermission(permission: string) {
+  //   const permissions = await this.getAllPermissions()
+  //   return permissions.includes(permission)
+  // }
 }

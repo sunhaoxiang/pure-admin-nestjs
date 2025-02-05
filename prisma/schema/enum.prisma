@@ -1,0 +1,4 @@
+enum ResourceType {
+  DIRECTORY // 目录类型资源
+  ENDPOINT // 接口端点类型资源
+}
