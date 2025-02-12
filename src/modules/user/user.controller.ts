@@ -157,13 +157,11 @@ export class UserController {
 
     const vo = new UserDetailVo()
     vo.id = user.id
-    vo.email = user.email
     vo.username = user.username
-    vo.headPic = user.headPic
-    vo.phoneNumber = user.phoneNumber
     vo.nickName = user.nickName
-    vo.createTime = user.createTime
-    vo.isFrozen = user.isFrozen
+    vo.headPic = user.headPic
+    vo.email = user.email
+    vo.phoneNumber = user.phoneNumber
 
     return vo
   }
