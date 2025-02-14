@@ -26,11 +26,22 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
       return true
     }
 
-    // 进行 jwt 认证
-    const isAuthenticated = await super.canActivate(context)
+    try {
+      // 进行 jwt 认证
+      const isAuthenticated = await super.canActivate(context)
 
-    if (!isAuthenticated) {
-      throw new UnauthorizedException('Token 失效，请重新登录')
+      if (!isAuthenticated) {
+        throw new UnauthorizedException('Token 失效，请重新登录')
+      }
+
+      return true
+    }
+    catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException('Token 失效，请重新登录')
+      }
+
+      throw error
     }
 
     // const httpContext = context.switchToHttp()
@@ -62,6 +73,6 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
     //   throw new ForbiddenException('您没有访问该接口的权限')
     // }
 
-    return true
+    // return true
   }
 }
