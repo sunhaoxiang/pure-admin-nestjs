@@ -154,7 +154,13 @@ const logDir = 'log'
     // ---------------------------------------- Pipes ----------------------------------------
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe, // 数据验证管道
+      useValue: new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        validateCustomDecorators: true,
+        stopAtFirstError: true,
+        disableErrorMessages: true,
+      }), // 数据验证管道
     },
 
     // ---------------------------------------- Exceptions Filters ----------------------------------------
