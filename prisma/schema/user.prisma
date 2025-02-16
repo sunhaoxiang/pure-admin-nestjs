@@ -14,11 +14,12 @@ model User {
 }
 
 model UserRole {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  roleId Int
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  roleId     Int
+  createTime DateTime @default(now())
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@index([roleId])

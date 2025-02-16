@@ -1,18 +1,16 @@
 model Api {
-  id          Int          @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   parentId    Int?
-  type        ResourceType
-  name        String       @db.VarChar(50)
-  code        String       @unique @db.VarChar(50)
-  method      String?      @db.VarChar(10)
-  path        String?      @db.VarChar(100)
-  description String?      @db.VarChar(100)
-  sort        Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  parent      Api?         @relation("ApiStructure", fields: [parentId], references: [id])
-  children    Api[]        @relation("ApiStructure")
+  type        ApiType
+  title       String    @db.VarChar(50)
+  code        String    @unique @db.VarChar(50)
+  method      String?   @db.VarChar(10)
+  path        String?   @db.VarChar(100)
+  description String?   @db.VarChar(100)
+  sort        Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  parent      Api?      @relation("ApiHierarchy", fields: [parentId], references: [id])
+  children    Api[]     @relation("ApiHierarchy")
   roles       RoleApi[]
-
-  @@index([method, path])
 }

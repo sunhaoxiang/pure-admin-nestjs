@@ -1,4 +1,10 @@
-enum ResourceType {
+enum MenuType {
   DIRECTORY // 目录类型资源
-  ENDPOINT // 接口端点类型资源
+  MENU // 菜单类型资源
+  BUTTON // 按钮类型资源
+}
+
+enum ApiType {
+  DIRECTORY // 目录类型资源
+  API // 接口端点类型资源
 }
