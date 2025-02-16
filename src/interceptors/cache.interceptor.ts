@@ -11,7 +11,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Observable, of, tap } from 'rxjs'
 import { Logger } from 'winston'
 
-import { CACHE_KEY, CACHE_TTL_KEY } from '@/decorators'
+import { CACHE_KEY, CACHE_TTL_KEY, CACHE_USER_KEY } from '@/decorators'
 import { CacheService } from '@/modules/cache/cache.service'
 
 @Injectable()
@@ -25,10 +25,28 @@ export class CacheInterceptor implements NestInterceptor {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
+  private generateCacheKey(
+    prefix: string | undefined,
+    userPrefix: string | undefined,
+    userId: number | undefined,
+    queryParams: string,
+  ): string | null {
+    if (!prefix && !userPrefix)
+      return null
+
+    const baseKey = `${this.CACHE_NAMESPACE}:`
+    const queryString = queryParams || 'default'
+
+    if (prefix)
+      return `${baseKey}${prefix}:${queryString}`
+
+    return `${baseKey}${userPrefix}:${userId}:${queryString}`
+  }
+
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const prefix = this.reflector.get<string>(CACHE_KEY, context.getHandler())
-
-    if (!prefix)
+    const userPrefix = this.reflector.get<string>(CACHE_USER_KEY, context.getHandler())
+    if (!prefix && !userPrefix)
       return next.handle()
 
     const ttl
@@ -39,7 +57,13 @@ export class CacheInterceptor implements NestInterceptor {
     const queryParams = Object.entries(request.query)
       .map(([key, value]) => `${key}-${value || ''}`)
       .join('|')
-    const cacheKey = `${this.CACHE_NAMESPACE}:${prefix}:${queryParams || 'default'}`
+
+    const userId = request.user?.id as number
+
+    const cacheKey = this.generateCacheKey(prefix, userPrefix, userId, queryParams)
+
+    if (!cacheKey)
+      return next.handle()
 
     try {
       const cachedRawData = await this.cacheService.get(cacheKey)

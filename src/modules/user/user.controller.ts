@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { FastifyRequest } from 'fastify'
 
-import { CacheKey, CacheTTL, Public, UserInfo } from '@/decorators'
+import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
@@ -177,7 +177,7 @@ export class UserController {
     description: 'success',
     type: UserDetailVo,
   })
-  @CacheKey('user:info')
+  @CacheUserKey('user:info')
   @CacheTTL(UserController.CACHE_TTL)
   @UseInterceptors(CacheInterceptor)
   async info(@UserInfo('id') id: number) {
