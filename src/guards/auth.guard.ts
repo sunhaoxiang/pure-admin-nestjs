@@ -1,16 +1,16 @@
 import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport'
-import { FastifyRequest } from 'fastify'
+// import { FastifyRequest } from 'fastify'
 
 import { IS_PUBLIC_KEY, PERMISSIONS_KEY } from '@/decorators'
-import { AuthService } from '@/modules/auth/auth.service'
+// import { UserService } from '@/modules/user/user.service'
 
 @Injectable()
 export class AuthGuard extends PassportAuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
-    private authService: AuthService,
+    // private userService: UserService,
   ) {
     super()
   }
@@ -58,7 +58,7 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
     //   context.getHandler(),
     // ])
 
-    // const userAuthorizationInfo = await this.authService.getUserAuthorizationInfo(request.user.id)
+    // const userAuthorizationInfo = await this.userService.getUserAuthorizationInfo(request.user.id)
 
     // if (requiredPermissions.length === 0 || userAuthorizationInfo.isAdmin) {
     //   return true

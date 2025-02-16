@@ -6,12 +6,16 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { FastifyRequest } from 'fastify'
 
 import { CacheKey, CacheTTL, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
@@ -39,6 +43,30 @@ export class UserController {
     private readonly nodemailerService: NodemailerService,
     private readonly cacheService: CacheService,
   ) {}
+
+  @Public()
+  @Post('login')
+  @UseGuards(AuthGuard('local'))
+  async login(@Req() req: FastifyRequest) {
+    const token = this.jwtService.sign(
+      req.user,
+      {
+        expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
+      },
+    )
+
+    const refreshToken = this.jwtService.sign(
+      req.user,
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
+      },
+    )
+
+    return {
+      token,
+      refreshToken,
+    }
+  }
 
   @Public()
   @Get('register-captcha')

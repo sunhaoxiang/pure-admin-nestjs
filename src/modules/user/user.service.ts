@@ -1,11 +1,11 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 
 import { CacheService } from '@/modules/cache/cache.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { hashPassword } from '@/utils'
+import { hashPassword, verifyPassword } from '@/utils'
 
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
@@ -60,6 +60,21 @@ export class UserService {
 
   findUser(args: Prisma.UserFindUniqueArgs) {
     return this.prisma.user.findUnique(args)
+  }
+
+  async validateUser(username: string, rawPassword: string) {
+    const user = await this.findUser(
+      {
+        where: { username },
+        select: { id: true, username: true, password: true },
+      },
+    )
+
+    if (!user || !(await verifyPassword(rawPassword, user.password))) {
+      throw new UnauthorizedException({ message: '用户名或密码错误' })
+    }
+
+    return user
   }
 
   findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
