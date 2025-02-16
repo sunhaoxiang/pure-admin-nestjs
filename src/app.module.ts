@@ -17,6 +17,7 @@ import { AuthGuard } from '@/guards'
 import { FormatResponseInterceptor, InvokeRecordInterceptor } from '@/interceptors'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { CacheModule } from '@/modules/cache/cache.module'
+import { MenuModule } from '@/modules/menu/menu.module'
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
 import { PrismaModule } from '@/modules/prisma/prisma.module'
 import { UserModule } from '@/modules/user/user.module'
@@ -106,6 +107,7 @@ const logDir = 'log'
     }),
     UserModule,
     AuthModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [
