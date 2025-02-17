@@ -4,12 +4,14 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 
 import { CacheService } from '@/modules/cache/cache.service'
+import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { hashPassword, verifyPassword } from '@/utils'
 
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserInfoVo } from './vo/user-info.vo'
 import { UserListVo } from './vo/user-list.vo'
 
 export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
@@ -55,6 +57,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cacheService: CacheService,
+    private readonly menuService: MenuService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
@@ -111,11 +114,34 @@ export class UserService {
     })
   }
 
-  async getUserInfo(where: Prisma.UserWhereUniqueInput) {
-    const user = await this.findUserWithRoles(where)
+  async getUserInfo(id: number) {
+    const user = await this.findUser({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        headPic: true,
+      },
+    })
 
-    return this.transformUserInfo(user)
+    const userMenu = await this.menuService.findMenuTree()
+
+    const vo = new UserInfoVo()
+    vo.id = user.id
+    vo.username = user.username
+    vo.nickName = user.nickName
+    vo.headPic = user.headPic
+    vo.menus = userMenu
+
+    return vo
   }
+
+  // async getUserInfo(where: Prisma.UserWhereUniqueInput) {
+  //   const user = await this.findUserWithRoles(where)
+
+  //   return this.transformUserInfo(user)
+  // }
 
   transformUserInfo(user: UserWithRolesAndPermissions): TransformedUserInfo {
     return {

@@ -177,21 +177,11 @@ export class UserController {
     description: 'success',
     type: UserDetailVo,
   })
-  @CacheUserKey('user:info')
-  @CacheTTL(UserController.CACHE_TTL)
-  @UseInterceptors(CacheInterceptor)
+  // @CacheUserKey('user:info')
+  // @CacheTTL(UserController.CACHE_TTL)
+  // @UseInterceptors(CacheInterceptor)
   async info(@UserInfo('id') id: number) {
-    const user = await this.userService.findUserDetailById(id)
-
-    const vo = new UserDetailVo()
-    vo.id = user.id
-    vo.username = user.username
-    vo.nickName = user.nickName
-    vo.headPic = user.headPic
-    vo.email = user.email
-    vo.phoneNumber = user.phoneNumber
-
-    return vo
+    return this.userService.getUserInfo(id)
   }
 
   @Post(['update_password', 'admin/update_password'])

@@ -23,7 +23,6 @@ export class MenuService {
   }
 
   create(createMenuDto: CreateMenuDto) {
-    console.log(createMenuDto)
     return this.prisma.menu.create({
       data: createMenuDto,
     })
