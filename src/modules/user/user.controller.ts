@@ -21,7 +21,7 @@ import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
-import { generateParseIntPipe } from '@/utils'
+import { createNumberValidationPipe } from '@/pipes'
 
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
@@ -316,8 +316,8 @@ export class UserController {
     description: '用户列表',
   })
   async list(
-    @Query('page', new DefaultValuePipe(1), generateParseIntPipe('page')) page: number,
-    @Query('pageSize', new DefaultValuePipe(10), generateParseIntPipe('pageSize')) pageSize: number,
+    @Query('page', new DefaultValuePipe(1), createNumberValidationPipe('page')) page: number,
+    @Query('pageSize', new DefaultValuePipe(10), createNumberValidationPipe('pageSize')) pageSize: number,
     @Query('username') username: string,
     @Query('nickName') nickName: string,
     @Query('email') email: string,

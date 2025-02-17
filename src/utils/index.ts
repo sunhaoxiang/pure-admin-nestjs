@@ -1,4 +1,3 @@
-import { BadRequestException, ParseIntPipe } from '@nestjs/common'
 import dayjs from 'dayjs'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
@@ -40,19 +39,6 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   const [salt, key] = hash.split(':')
   const derivedKey = await scryptAsync(password, salt, 64) as Buffer
   return key === derivedKey.toString('hex')
-}
-
-/**
- * @description 生成 ParseIntPipe
- * @param name 参数名称
- * @returns ParseIntPipe
- */
-export function generateParseIntPipe(name: string) {
-  return new ParseIntPipe({
-    exceptionFactory() {
-      throw new BadRequestException(`${name} 应该传数字`)
-    },
-  })
 }
 
 /**
@@ -232,15 +218,21 @@ export function createPaginationParams(rawPage: number, rawPageSize: number) {
 }
 
 /**
- * @description 将扁平数据转换为树形结构
+ * @description 树节点类型
  */
-type TreeNode<T> = T & { children?: TreeNode<T>[] }
+export type TreeNode<T> = T & { children?: TreeNode<T>[] }
 
-export function convertFlatDataToTree<T extends { id: any, parentId?: any }>(
+/**
+ * @description 将扁平数据转换为树形结构
+ * @param flatData 扁平数据
+ * @param rootId 根节点ID
+ * @returns 树形结构
+ */
+export function convertFlatDataToTree<T extends { id: number | string, parentId?: number | string | null }>(
   flatData: T[],
-  rootId?: any,
+  rootId?: number | string | null,
 ): TreeNode<T>[] {
-  const map: Record<any, TreeNode<T>> = {}
+  const map: Record<string | number, TreeNode<T>> = {}
   const roots: TreeNode<T>[] = []
 
   // 遍历所有节点，同时添加到 map 中并构建树形结构
@@ -249,7 +241,7 @@ export function convertFlatDataToTree<T extends { id: any, parentId?: any }>(
     const treeNode: TreeNode<T> = { ...node } // 创建新的树节点
     map[id] = treeNode // 存储到 map 中
 
-    if (parentId == null || parentId === rootId) {
+    if (parentId === null || parentId === rootId) {
       // 如果没有父节点或父节点为 rootId，则为根节点
       roots.push(treeNode)
     }

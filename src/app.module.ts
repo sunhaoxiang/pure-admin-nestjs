@@ -160,7 +160,6 @@ const logDir = 'log'
         transform: true,
         whitelist: true,
         validateCustomDecorators: true,
-        skipMissingProperties: true,
         stopAtFirstError: true,
         disableErrorMessages: true,
       }), // 数据验证管道

@@ -3,7 +3,8 @@ model Menu {
   parentId    Int?
   type        MenuType
   title       String     @db.VarChar(50)
-  code        String     @unique @db.VarChar(50)
+  icon        String?    @db.VarChar(50)
+  code        String?    @unique @db.VarChar(50)
   path        String?    @db.VarChar(100)
   description String?    @db.VarChar(100)
   sort        Int        @default(0)

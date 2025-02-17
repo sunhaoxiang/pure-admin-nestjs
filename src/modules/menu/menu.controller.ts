@@ -1,10 +1,51 @@
-import { Controller } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, Param, Post, Put, UsePipes } from '@nestjs/common'
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 
+import { updateValidationPipe } from '@/pipes'
+
+import { CreateMenuDto } from './dto/create-menu.dto'
+import { UpdateMenuDto } from './dto/update-menu.dto'
 import { MenuService } from './menu.service'
 
 @Controller('menu')
 @ApiTags('菜单管理模块')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
+
+  @Get()
+  @ApiOperation({ summary: '获取菜单列表' })
+  @ApiOkResponse({
+    description: '获取菜单列表成功',
+  })
+  findAll() {
+    return this.menuService.findAll()
+  }
+
+  @Get('tree')
+  @ApiOperation({ summary: '获取菜单树' })
+  @ApiOkResponse({
+    description: '获取菜单树成功',
+  })
+  findMenuTree() {
+    return this.menuService.findMenuTree()
+  }
+
+  @Post()
+  @ApiOperation({ summary: '创建菜单' })
+  @ApiOkResponse({
+    description: '创建菜单成功',
+  })
+  create(@Body() createMenuDto: CreateMenuDto) {
+    return this.menuService.create(createMenuDto)
+  }
+
+  @Put(':id')
+  @UsePipes(updateValidationPipe)
+  @ApiOperation({ summary: '更新菜单' })
+  @ApiOkResponse({
+    description: '更新菜单成功',
+  })
+  update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
+    return this.menuService.update(+id, updateMenuDto)
+  }
 }
