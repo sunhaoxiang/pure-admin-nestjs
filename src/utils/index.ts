@@ -8,7 +8,7 @@ import winston from 'winston'
 const scryptAsync = promisify(crypto.scrypt)
 
 /**
- * @description 延迟执行
+ * 延迟执行
  * @param ms 延迟时间（毫秒）
  * @returns 延迟执行的 Promise
  */
@@ -19,7 +19,7 @@ export function delay(ms: number): Promise<void> {
 }
 
 /**
- * @description 哈希密码
+ * 哈希密码
  * @param password 密码
  * @returns 哈希值
  */
@@ -30,7 +30,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
- * @description 验证密码
+ * 验证密码
  * @param password 密码
  * @param hash 哈希值
  * @returns 如果密码匹配，则返回 true，否则返回 false
@@ -42,7 +42,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /**
- * @description 获取环境文件路径
+ * 获取环境文件路径
  * @param dest 目标路径
  * @returns 环境文件路径
  */
@@ -71,7 +71,7 @@ export function getEnvPath(dest: string): string {
 }
 
 /**
- * @description 将 kebab-case 字符串转换为 camelCase
+ * 将 kebab-case 字符串转换为 camelCase
  * @param str kebab-case 格式的字符串
  * @returns camelCase 格式的字符串
  */
@@ -89,7 +89,7 @@ export function kebabToCamelCase(str: string | null | undefined): string {
 }
 
 /**
- * @description 创建日志过滤器
+ * 创建日志过滤器
  * @param level 日志级别
  * @returns 日志过滤器
  */
@@ -100,7 +100,7 @@ export function createLevelFilter(level: string) {
 }
 
 /**
- * @description 创建日志选项
+ * 创建日志选项
  * @param type 日志类型
  * @param logDir 日志目录
  * @returns 日志选项
@@ -118,7 +118,7 @@ export function createLoggerOptions(type: string, logDir: string) {
 }
 
 /**
- * @description 默认日志格式
+ * 默认日志格式
  * @param hasFilter 是否需要过滤日志
  * @param level 日志级别
  * @returns 日志格式
@@ -138,7 +138,7 @@ export function defaultLogFormat(hasFilter = false, level: string = 'http') {
 }
 
 /**
- * @description 判断是否为 HTTP URL
+ * 判断是否为 HTTP URL
  * @param url 要判断的 URL
  * @returns 如果 URL 以 http:// 或 https:// 开头，则返回 true，否则返回 false
  */
@@ -147,7 +147,7 @@ export function isHttpUrl(url: string) {
 }
 
 /**
- * @description 创建单字段模糊搜索条件
+ * 创建单字段模糊搜索条件
  * @param field 要搜索的字段名
  * @param value 搜索值
  * @returns Prisma contains 条件对象
@@ -166,7 +166,7 @@ export function createFuzzySearchFilter<T extends string>(
 }
 
 /**
- * @description 创建逗号分隔的模糊搜索条件
+ * 创建逗号分隔的模糊搜索条件
  * @param field 要搜索的字段名
  * @param value 逗号分隔的搜索值
  * @returns Prisma OR 条件数组
@@ -202,7 +202,7 @@ export function createCommaSearchFilter<T extends string>(
 }
 
 /**
- * @description 计算分页参数
+ * 计算分页参数
  * @param rawPage 当前页码（从1开始）
  * @param rawPageSize 每页数量
  * @returns [skip, take] 元组，用于 Prisma 查询
@@ -218,12 +218,12 @@ export function createPaginationParams(rawPage: number, rawPageSize: number) {
 }
 
 /**
- * @description 树节点类型
+ * 树节点类型
  */
 export type TreeNode<T> = T & { children?: TreeNode<T>[] }
 
 /**
- * @description 将扁平数据转换为树形结构
+ * 将扁平数据转换为树形结构
  * @param flatData 扁平数据
  * @param rootId 根节点ID
  * @returns 树形结构
