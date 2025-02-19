@@ -114,7 +114,7 @@ const logDir = 'log'
     AppService,
     ConfigService,
 
-    // ---------------------------------------- 请求处理流程 ----------------------------------------
+    // -------------------- 请求处理流程 --------------------
     //    请求
     //     ↓
     //    中间件 (Middlewares) [自上而下按顺序执行]
@@ -133,7 +133,7 @@ const logDir = 'log'
     //     ↓
     //    响应
 
-    // ---------------------------------------- Guards ----------------------------------------
+    // -------------------- Guards --------------------
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard, // 限流守卫
@@ -143,7 +143,7 @@ const logDir = 'log'
       useClass: AuthGuard, // 权限守卫
     },
 
-    // ---------------------------------------- Interceptors ----------------------------------------
+    // -------------------- Interceptors --------------------
     {
       provide: APP_INTERCEPTOR,
       useClass: InvokeRecordInterceptor, // 调用记录拦截器
@@ -153,19 +153,20 @@ const logDir = 'log'
       useClass: FormatResponseInterceptor, // 格式化响应拦截器
     },
 
-    // ---------------------------------------- Pipes ----------------------------------------
+    // -------------------- Pipes --------------------
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
         transform: true,
         whitelist: true,
         validateCustomDecorators: true,
+        skipMissingProperties: false,
         stopAtFirstError: true,
         disableErrorMessages: true,
       }), // 数据验证管道
     },
 
-    // ---------------------------------------- Exceptions Filters ----------------------------------------
+    // -------------------- Exceptions Filters --------------------
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter, // 所有异常过滤器， 用于捕获除 HttpException 之外的异常
