@@ -32,17 +32,17 @@
     "@fastify/helmet": "^13.0.1",
     "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/axios": "^4.0.0",
-    "@nestjs/common": "^11.0.9",
+    "@nestjs/common": "^11.0.10",
     "@nestjs/config": "^4.0.0",
-    "@nestjs/core": "^11.0.9",
+    "@nestjs/core": "^11.0.10",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-fastify": "^11.0.9",
+    "@nestjs/platform-fastify": "^11.0.10",
     "@nestjs/schedule": "^5.0.1",
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/throttler": "^6.4.0",
-    "@prisma/client": "^6.3.1",
+    "@prisma/client": "^6.4.0",
     "axios": "^1.7.9",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -65,10 +65,10 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.2.1",
-    "@nestjs/cli": "^11.0.2",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.9",
+    "@antfu/eslint-config": "^4.3.0",
+    "@nestjs/cli": "^11.0.4",
+    "@nestjs/schematics": "^11.0.1",
+    "@nestjs/testing": "^11.0.10",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.4",
     "@types/nodemailer": "^6.4.17",
@@ -111,5 +111,11 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client"
+    ]
   }
 }
