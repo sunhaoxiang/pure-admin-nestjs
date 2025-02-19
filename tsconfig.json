@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "ES2021",
+    "target": "ES2022",
+    "lib": ["ES2024"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "baseUrl": "./",

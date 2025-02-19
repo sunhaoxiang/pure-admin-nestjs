@@ -13,9 +13,12 @@ const scryptAsync = promisify(crypto.scrypt)
  * @returns 延迟执行的 Promise
  */
 export function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
+  const { promise, resolve } = Promise.withResolvers<void>()
+  setTimeout(resolve, ms)
+  return promise
+  // return new Promise((resolve) => {
+  //   setTimeout(resolve, ms)
+  // })
 }
 
 /**
