@@ -162,7 +162,7 @@ const logDir = 'log'
         validateCustomDecorators: true,
         skipMissingProperties: false,
         stopAtFirstError: true,
-        disableErrorMessages: true,
+        disableErrorMessages: false,
       }), // 数据验证管道
     },
 

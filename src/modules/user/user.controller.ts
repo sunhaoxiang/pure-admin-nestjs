@@ -21,15 +21,14 @@ import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
-import { createNumberValidationPipe } from '@/pipes'
 
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserListDto } from './dto/user-list.dto'
 import { UserService } from './user.service'
 import { RefreshTokenVo } from './vo/refresh-token.vo'
 import { UserDetailVo } from './vo/user-detail.vo'
-import { UserListVo } from './vo/user-list.vo'
 
 @Controller('user')
 @ApiTags('用户管理模块')
@@ -276,42 +275,7 @@ export class UserController {
 
   @Get('list')
   @ApiBearerAuth()
-  @ApiQuery({
-    name: 'page',
-    description: '第几页',
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'pageSize',
-    description: '每页多少条',
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'username',
-    description: '用户名',
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'nickName',
-    description: '昵称',
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'email',
-    description: '邮箱地址',
-    type: Number,
-  })
-  @ApiResponse({
-    type: UserListVo,
-    description: '用户列表',
-  })
-  async list(
-    @Query('page', new DefaultValuePipe(1), createNumberValidationPipe('page')) page: number,
-    @Query('pageSize', new DefaultValuePipe(10), createNumberValidationPipe('pageSize')) pageSize: number,
-    @Query('username') username: string,
-    @Query('nickName') nickName: string,
-    @Query('email') email: string,
-  ) {
-    return this.userService.findUsers(username, nickName, email, page, pageSize)
+  async list(@Query() userListDto: UserListDto) {
+    return this.userService.findMany(userListDto)
   }
 }

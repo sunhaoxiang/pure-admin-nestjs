@@ -39,5 +39,5 @@ export class CreateMenuDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  sort?: number
+  sort?: number = 0
 }

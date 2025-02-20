@@ -6,13 +6,13 @@ import { Logger } from 'winston'
 import { CacheService } from '@/modules/cache/cache.service'
 import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { hashPassword, verifyPassword } from '@/utils'
+import { createFuzzySearchFilter, createPaginationParams, hashPassword, verifyPassword } from '@/utils'
 
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserListDto } from './dto/user-list.dto'
 import { UserInfoVo } from './vo/user-info.vo'
-import { UserListVo } from './vo/user-list.vo'
 
 export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
   select: {
@@ -60,6 +60,41 @@ export class UserService {
     private readonly menuService: MenuService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
+
+  async findMany(userListDto: UserListDto) {
+    const { page, pageSize, username, nickName, email, phoneNumber } = userListDto
+
+    const queryOptions: Prisma.UserFindManyArgs = {
+      where: {
+        ...createFuzzySearchFilter('username', username),
+        ...createFuzzySearchFilter('nickName', nickName),
+        ...createFuzzySearchFilter('email', email),
+        ...createFuzzySearchFilter('phoneNumber', phoneNumber),
+      },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        email: true,
+        phoneNumber: true,
+        isFrozen: true,
+        headPic: true,
+        createTime: true,
+        updateTime: true,
+      },
+    }
+
+    const [list, total] = await this.prisma.getPaginatedList(
+      this.prisma.user,
+      queryOptions,
+      createPaginationParams(page, pageSize),
+    )
+
+    return {
+      list,
+      total,
+    }
+  }
 
   findUser(args: Prisma.UserFindUniqueArgs) {
     return this.prisma.user.findUnique(args)
@@ -294,60 +329,5 @@ export class UserService {
         isFrozen: true,
       },
     })
-  }
-
-  async findUsers(
-    username: string,
-    nickName: string,
-    email: string,
-    page: number,
-    pageSize: number,
-  ) {
-    const skipCount = (page - 1) * pageSize
-
-    const condition: Prisma.UserWhereInput = {}
-
-    if (username) {
-      condition.username = {
-        contains: username,
-      }
-    }
-    if (nickName) {
-      condition.nickName = {
-        contains: nickName,
-      }
-    }
-    if (email) {
-      condition.email = {
-        contains: email,
-      }
-    }
-
-    const [users, totalCount] = await this.prisma.$transaction([
-      this.prisma.user.findMany({
-        select: {
-          id: true,
-          username: true,
-          nickName: true,
-          email: true,
-          phoneNumber: true,
-          isFrozen: true,
-          headPic: true,
-          createTime: true,
-        },
-        skip: skipCount,
-        take: pageSize,
-        where: condition,
-      }),
-      this.prisma.user.count({
-        where: condition,
-      }),
-    ])
-
-    const vo = new UserListVo()
-
-    vo.users = users
-    vo.totalCount = totalCount
-    return vo
   }
 }
