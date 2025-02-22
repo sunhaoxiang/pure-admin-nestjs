@@ -35,7 +35,7 @@ import { UserService } from './user.service'
 import { RefreshTokenVo } from './vo/refresh-token.vo'
 import { UserDetailVo } from './vo/user-detail.vo'
 
-@Controller('users')
+@Controller('user')
 @ApiTags('用户管理模块')
 export class UserController {
   private static readonly CACHE_TTL = 60 * 60 * 8
