@@ -327,6 +327,14 @@ export class UserService {
     })
   }
 
+  async deleteMany(ids: number[]) {
+    return this.prisma.user.deleteMany({
+      where: {
+        id: { in: ids },
+      },
+    })
+  }
+
   async freezeUserById(id: number) {
     const user = await this.prisma.user.findUnique({
       where: {

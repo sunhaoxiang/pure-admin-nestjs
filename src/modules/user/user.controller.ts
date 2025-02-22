@@ -20,6 +20,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { FastifyRequest } from 'fastify'
 
+import { DeleteManyDto } from '@/common/dto/delete-many.dto'
 import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
@@ -290,6 +291,12 @@ export class UserController {
   })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto)
+  }
+
+  @Delete()
+  @ApiBearerAuth()
+  async deleteMany(@Body() deleteManyDto: DeleteManyDto) {
+    return this.userService.deleteMany(deleteManyDto.ids)
   }
 
   @Get(':id')
