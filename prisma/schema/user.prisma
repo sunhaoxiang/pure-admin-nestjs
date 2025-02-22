@@ -3,7 +3,7 @@ model User {
   username    String     @unique @db.VarChar(50)
   password    String     @db.VarChar(200)
   nickName    String?    @db.VarChar(50)
-  email       String     @db.VarChar(50)
+  email       String?    @db.VarChar(50)
   headPic     String?    @db.VarChar(100)
   phoneNumber String?    @db.VarChar(20)
   isFrozen    Boolean    @default(false)

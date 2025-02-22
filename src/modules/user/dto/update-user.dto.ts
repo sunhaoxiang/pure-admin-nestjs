@@ -1,28 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsNotEmpty } from 'class-validator'
+import { OmitType } from '@nestjs/mapped-types'
 
-export class UpdateUserDto {
-  @ApiProperty()
-  headPic: string
+import { CreateUserDto } from './create-user.dto'
 
-  @ApiProperty()
-  nickName: string
-
-  @IsNotEmpty({
-    message: '邮箱不能为空',
-  })
-  @IsEmail(
-    {},
-    {
-      message: '不是合法的邮箱格式',
-    },
-  )
-  @ApiProperty()
-  email: string
-
-  @IsNotEmpty({
-    message: '验证码不能为空',
-  })
-  @ApiProperty()
-  captcha: string
-}
+export class UpdateUserDto extends OmitType(CreateUserDto, ['password']) {}

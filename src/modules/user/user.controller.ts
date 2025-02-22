@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Get,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UnauthorizedException,
@@ -22,6 +24,7 @@ import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
 
+import { CreateUserDto } from './dto/create-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -219,23 +222,23 @@ export class UserController {
     return '发送成功'
   }
 
-  @Post(['update', 'admin/update'])
-  @ApiBearerAuth()
-  @ApiBody({
-    type: UpdateUserDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: '验证码已失效/不正确',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '更新成功',
-    type: String,
-  })
-  update(@UserInfo('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto)
-  }
+  // @Post(['update', 'admin/update'])
+  // @ApiBearerAuth()
+  // @ApiBody({
+  //   type: UpdateUserDto,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.BAD_REQUEST,
+  //   description: '验证码已失效/不正确',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: '更新成功',
+  //   type: String,
+  // })
+  // update(@UserInfo('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  //   return this.userService.update(id, updateUserDto)
+  // }
 
   @Get('update/captcha')
   @ApiResponse({
@@ -277,5 +280,29 @@ export class UserController {
   @ApiBearerAuth()
   async list(@Query() userListDto: UserListDto) {
     return this.userService.findMany(userListDto)
+  }
+
+  @Post()
+  @ApiBearerAuth()
+  @ApiBody({
+    type: CreateUserDto,
+  })
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto)
+  }
+
+  @Put(':id')
+  @ApiBearerAuth()
+  @ApiBody({
+    type: UpdateUserDto,
+  })
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(id, updateUserDto)
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id)
   }
 }

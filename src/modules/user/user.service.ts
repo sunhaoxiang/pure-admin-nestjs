@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
@@ -8,6 +8,7 @@ import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { createFuzzySearchFilter, createPaginationParams, hashPassword, verifyPassword } from '@/utils'
 
+import { CreateUserDto } from './dto/create-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -61,6 +62,27 @@ export class UserService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
+  async create(createUserDto: CreateUserDto) {
+    const { username } = createUserDto
+
+    const isExist = await this.prisma.user.exists({
+      where: { username },
+    })
+
+    if (isExist) {
+      throw new HttpException({ message: '用户已存在' }, HttpStatus.CONFLICT)
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: await hashPassword(createUserDto.password),
+      },
+    })
+
+    return user
+  }
+
   async findMany(userListDto: UserListDto) {
     const { page, pageSize, username, nickName, email, phoneNumber } = userListDto
 
@@ -94,6 +116,28 @@ export class UserService {
       list,
       total,
     }
+  }
+
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        email: true,
+        phoneNumber: true,
+        headPic: true,
+        isFrozen: true,
+        // 可以根据需要添加或移除字段
+      },
+    })
+
+    if (!user) {
+      throw new NotFoundException(`用户不存在`)
+    }
+
+    return user
   }
 
   findUser(args: Prisma.UserFindUniqueArgs) {
@@ -267,48 +311,12 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const captcha = await this.cacheService.get(`update_user_captcha_${updateUserDto.email}`)
-
-    if (!captcha) {
-      throw new HttpException({ message: '验证码已失效' }, HttpStatus.UNPROCESSABLE_ENTITY)
-    }
-
-    if (updateUserDto.captcha !== captcha) {
-      throw new HttpException({ message: '验证码不正确' }, HttpStatus.BAD_REQUEST)
-    }
-
-    const foundUser = await this.prisma.user.findUnique({
+    return this.prisma.user.update({
       where: {
         id,
       },
+      data: updateUserDto,
     })
-
-    if (!foundUser) {
-      throw new HttpException({ message: '用户不存在' }, HttpStatus.NOT_FOUND)
-    }
-
-    const updateData: Prisma.UserUpdateInput = {}
-
-    if (updateUserDto.nickName) {
-      updateData.nickName = updateUserDto.nickName
-    }
-    if (updateUserDto.headPic) {
-      updateData.headPic = updateUserDto.headPic
-    }
-
-    try {
-      await this.prisma.user.update({
-        where: {
-          id,
-        },
-        data: updateData,
-      })
-      return { message: '用户信息修改成功' }
-    }
-    catch (e) {
-      this.logger.error(e, UserService)
-      return { message: '用户信息修改失败' }
-    }
   }
 
   async freezeUserById(id: number) {
