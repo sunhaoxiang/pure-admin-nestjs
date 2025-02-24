@@ -305,12 +305,6 @@ export class UserController {
     return this.userService.findOne(id)
   }
 
-  @Delete(':id')
-  @ApiBearerAuth()
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.delete(id)
-  }
-
   @Put(':id')
   @ApiBearerAuth()
   @ApiBody({
@@ -318,5 +312,11 @@ export class UserController {
   })
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto)
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.delete(id)
   }
 }

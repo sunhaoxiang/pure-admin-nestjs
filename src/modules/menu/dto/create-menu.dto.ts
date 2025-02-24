@@ -22,9 +22,8 @@ export class CreateMenuDto {
   icon?: string
 
   @ApiProperty({ required: false })
-  @ValidateIf(object => object.type === MenuType.MENU || object.type === MenuType.BUTTON)
-  @IsNotEmpty()
-  code: string
+  @IsOptional()
+  code?: string
 
   @ApiProperty({ required: false })
   @ValidateIf(object => object.type === MenuType.MENU)

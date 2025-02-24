@@ -22,6 +22,16 @@ export class MenuService {
     return menuTree
   }
 
+  findFlatMenuTree() {
+    return this.findAll()
+  }
+
+  async findMenuById(id: number) {
+    return this.prisma.menu.findUnique({
+      where: { id },
+    })
+  }
+
   create(createMenuDto: CreateMenuDto) {
     return this.prisma.menu.create({
       data: createMenuDto,
@@ -32,6 +42,12 @@ export class MenuService {
     return this.prisma.menu.update({
       where: { id },
       data: updateMenuDto,
+    })
+  }
+
+  delete(id: number) {
+    return this.prisma.menu.delete({
+      where: { id },
     })
   }
 }

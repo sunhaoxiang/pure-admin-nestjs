@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Put, UsePipes } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes } from '@nestjs/common'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 
 import { updateValidationPipe } from '@/pipes'
 
@@ -22,6 +22,7 @@ export class MenuController {
   // }
 
   @Get()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '获取菜单' })
   @ApiOkResponse({
     description: '获取菜单树成功',
@@ -30,7 +31,18 @@ export class MenuController {
     return this.menuService.findMenuTree()
   }
 
+  @Get('/flat')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '获取菜单扁平化列表' })
+  @ApiOkResponse({
+    description: '获取菜单扁平化列表成功',
+  })
+  findFlatMenuTree() {
+    return this.menuService.findFlatMenuTree()
+  }
+
   @Post()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '创建菜单' })
   @ApiOkResponse({
     description: '创建菜单成功',
@@ -39,13 +51,26 @@ export class MenuController {
     return this.menuService.create(createMenuDto)
   }
 
+  @Get(':id')
+  @ApiBearerAuth()
+  async getMenuById(@Param('id', ParseIntPipe) id: number) {
+    return this.menuService.findMenuById(id)
+  }
+
   @Put(':id')
   @UsePipes(updateValidationPipe)
+  @ApiBearerAuth()
   @ApiOperation({ summary: '更新菜单' })
   @ApiOkResponse({
     description: '更新菜单成功',
   })
   update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
     return this.menuService.update(+id, updateMenuDto)
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return this.menuService.delete(id)
   }
 }

@@ -231,49 +231,40 @@ export type TreeNode<T> = T & { children?: TreeNode<T>[] }
  * @param rootId 根节点ID
  * @returns 树形结构
  */
-export function convertFlatDataToTree<T extends { id: number | string, parentId?: number | string | null }>(
-  flatData: T[],
-  rootId?: number | string | null,
-): TreeNode<T>[] {
-  const map: Record<string | number, TreeNode<T>> = {}
+export function convertFlatDataToTree<T extends { id: number, parentId?: number, sort: number }>(flatData: T[], rootId?: number): TreeNode<T>[] {
+  const map: Record<number, TreeNode<T>> = {}
   const roots: TreeNode<T>[] = []
 
-  // 遍历所有节点，同时添加到 map 中并构建树形结构
+  // 将所有节点添加到 map 中，以 id 作为 key
   flatData.forEach((node) => {
-    const { id, parentId } = node
-    const treeNode: TreeNode<T> = { ...node } // 创建新的树节点
-    map[id] = treeNode // 存储到 map 中
+    map[node.id] = { ...node } as TreeNode<T> // 明确类型转换为 TreeNode<T>
+  })
 
-    if (parentId === null || parentId === rootId) {
-      // 如果没有父节点或父节点为 rootId，则为根节点
-      roots.push(treeNode)
+  // 遍历所有节点，构建树形结构
+  flatData.forEach((node) => {
+    const parentNode = map[node.parentId ?? rootId]
+    if (parentNode) {
+      let children = parentNode.children
+      if (!children) {
+        children = []
+        Object.assign(parentNode, { children }) // 添加 children 属性
+      }
+      children.push(map[node.id])
     }
     else {
-      // 寻找父节点
-      const parentNode = map[parentId]
-      if (parentNode) {
-        // 如果找到父节点，将当前节点添加到父节点的 children 数组中
-        if (!parentNode.children) {
-          parentNode.children = [] // 初始化 children 数组
-        }
-        parentNode.children.push(treeNode)
-      }
-      else {
-        // 如果找不到父节点，则将当前节点作为根节点（处理脏数据）
-        roots.push(treeNode)
-      }
+      // 如果找不到父节点，将当前节点作为根节点
+      roots.push(map[node.id])
     }
   })
 
   // 移除空的 children 属性
   const cleanUpEmptyChildren = (nodes: TreeNode<T>[]): TreeNode<T>[] =>
-    nodes.map(node => ({
-      ...node,
-      children:
-        node.children && node.children.length > 0
-          ? cleanUpEmptyChildren(node.children)
-          : undefined,
-    }))
+    nodes
+      .sort((a, b) => a.sort - b.sort)
+      .map(node => ({
+        ...node,
+        children: node.children && node.children.length > 0 ? cleanUpEmptyChildren(node.children) : undefined,
+      }))
 
   return cleanUpEmptyChildren(roots)
 }
