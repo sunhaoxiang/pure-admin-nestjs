@@ -12,17 +12,17 @@ import { MenuService } from './menu.service'
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
-  @Get()
-  @ApiOperation({ summary: '获取菜单列表' })
-  @ApiOkResponse({
-    description: '获取菜单列表成功',
-  })
-  findAll() {
-    return this.menuService.findAll()
-  }
+  // @Get()
+  // @ApiOperation({ summary: '获取菜单列表' })
+  // @ApiOkResponse({
+  //   description: '获取菜单列表成功',
+  // })
+  // findAll() {
+  //   return this.menuService.findAll()
+  // }
 
-  @Get('tree')
-  @ApiOperation({ summary: '获取菜单树' })
+  @Get()
+  @ApiOperation({ summary: '获取菜单' })
   @ApiOkResponse({
     description: '获取菜单树成功',
   })

@@ -278,7 +278,7 @@ export class UserController {
     return 'success'
   }
 
-  @Get('list')
+  @Get()
   @ApiBearerAuth()
   async list(@Query() userListDto: UserListDto) {
     return this.userService.findMany(userListDto)
