@@ -22,5 +22,5 @@ export class UserListDto extends PageDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  phoneNumber?: string
+  phone?: string
 }

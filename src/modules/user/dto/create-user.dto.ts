@@ -30,7 +30,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsOptional()
-  phoneNumber?: string
+  phone?: string
 
   @ApiProperty()
   @IsOptional()

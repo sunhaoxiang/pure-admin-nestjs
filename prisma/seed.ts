@@ -22,8 +22,8 @@ async function main() {
     password,
     email: 'admin@pure-admin.com',
     nickName: 'admin',
-    phoneNumber: '13333333333',
-    isAdmin: true,
+    phone: '13333333333',
+    isSuperAdmin: true,
   }
   const user = await prisma.user.create({
     data: newUser,

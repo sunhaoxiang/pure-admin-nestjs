@@ -17,5 +17,5 @@ export class UserDetailVo {
   email: string
 
   @ApiProperty()
-  phoneNumber: string
+  phone: string
 }

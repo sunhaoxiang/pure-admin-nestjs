@@ -7,6 +7,7 @@ model Menu {
   code        String?  @unique @db.VarChar(50)
   path        String?  @db.VarChar(100)
   description String?  @db.VarChar(100)
+  i18nKey     String?  @db.VarChar(50)
   sort        Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

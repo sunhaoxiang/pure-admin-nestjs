@@ -22,8 +22,8 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
     nickName: true
     email: true
     headPic: true
-    phoneNumber: true
-    isAdmin: true
+    phone: true
+    isSuperAdmin: true
     roles: {
       select: {
         role: true
@@ -68,21 +68,21 @@ export class UserService {
   }
 
   async findMany(userListDto: UserListDto) {
-    const { page, pageSize, username, nickName, email, phoneNumber } = userListDto
+    const { page, pageSize, username, nickName, email, phone } = userListDto
 
     const queryOptions: Prisma.UserFindManyArgs = {
       where: {
         ...createFuzzySearchFilter('username', username),
         ...createFuzzySearchFilter('nickName', nickName),
         ...createFuzzySearchFilter('email', email),
-        ...createFuzzySearchFilter('phoneNumber', phoneNumber),
+        ...createFuzzySearchFilter('phone', phone),
       },
       select: {
         id: true,
         username: true,
         nickName: true,
         email: true,
-        phoneNumber: true,
+        phone: true,
         isFrozen: true,
         headPic: true,
         createTime: true,
@@ -107,7 +107,7 @@ export class UserService {
         username: true,
         nickName: true,
         email: true,
-        phoneNumber: true,
+        phone: true,
         headPic: true,
         isFrozen: true,
         // 可以根据需要添加或移除字段
@@ -149,8 +149,8 @@ export class UserService {
         nickName: true,
         email: true,
         headPic: true,
-        phoneNumber: true,
-        isAdmin: true,
+        phone: true,
+        isSuperAdmin: true,
         roles: {
           select: {
             role: true,

@@ -60,7 +60,7 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
 
     // const userAuthorizationInfo = await this.userService.getUserAuthorizationInfo(request.user.id)
 
-    // if (requiredPermissions.length === 0 || userAuthorizationInfo.isAdmin) {
+    // if (requiredPermissions.length === 0 || userAuthorizationInfo.isSuperAdmin) {
     //   return true
     // }
 

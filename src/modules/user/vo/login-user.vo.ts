@@ -17,13 +17,13 @@ class UserInfo {
   headPic: string
 
   @ApiProperty({ example: '13233333333' })
-  phoneNumber: string
+  phone: string
 
   @ApiProperty()
   isFrozen: boolean
 
   @ApiProperty()
-  isAdmin: boolean
+  isSuperAdmin: boolean
 
   @ApiProperty()
   createTime: number

@@ -13,5 +13,5 @@ export interface UserAuthorizationInfo {
   id: number
   username: string
   permissions: string[]
-  isAdmin: boolean
+  isSuperAdmin: boolean
 }

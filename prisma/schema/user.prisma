@@ -1,16 +1,16 @@
 model User {
-  id          Int        @id @default(autoincrement())
-  username    String     @unique @db.VarChar(50)
-  password    String     @db.VarChar(200)
-  nickName    String?    @db.VarChar(50)
-  email       String?    @db.VarChar(50)
-  headPic     String?    @db.VarChar(100)
-  phoneNumber String?    @db.VarChar(20)
-  isFrozen    Boolean    @default(false)
-  isAdmin     Boolean    @default(false)
-  createTime  DateTime   @default(now())
-  updateTime  DateTime   @updatedAt
-  roles       UserRole[]
+  id           Int        @id @default(autoincrement())
+  username     String     @unique @db.VarChar(50)
+  password     String     @db.VarChar(200)
+  nickName     String?    @db.VarChar(50)
+  email        String?    @db.VarChar(50)
+  headPic      String?    @db.VarChar(100)
+  phone        String?    @db.VarChar(20)
+  isFrozen     Boolean    @default(false)
+  isSuperAdmin Boolean    @default(false)
+  createTime   DateTime   @default(now())
+  updateTime   DateTime   @updatedAt
+  roles        UserRole[]
 }
 
 model UserRole {
