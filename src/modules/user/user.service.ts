@@ -112,10 +112,7 @@ export class UserService {
       createPaginationParams(page, pageSize),
     )
 
-    return {
-      list,
-      total,
-    }
+    return { list, total }
   }
 
   async findOne(id: number) {

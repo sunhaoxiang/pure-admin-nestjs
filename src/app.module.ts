@@ -20,6 +20,7 @@ import { CacheModule } from '@/modules/cache/cache.module'
 import { MenuModule } from '@/modules/menu/menu.module'
 import { NodemailerModule } from '@/modules/nodemailer/nodemailer.module'
 import { PrismaModule } from '@/modules/prisma/prisma.module'
+import { RoleModule } from '@/modules/role/role.module'
 import { UserModule } from '@/modules/user/user.module'
 import { createLoggerOptions, defaultLogFormat, getEnvPath } from '@/utils'
 
@@ -108,6 +109,7 @@ const logDir = 'log'
     UserModule,
     AuthModule,
     MenuModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [

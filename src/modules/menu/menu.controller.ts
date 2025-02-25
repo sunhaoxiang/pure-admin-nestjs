@@ -64,8 +64,8 @@ export class MenuController {
   @ApiOkResponse({
     description: '更新菜单成功',
   })
-  update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
-    return this.menuService.update(+id, updateMenuDto)
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateMenuDto: UpdateMenuDto) {
+    return this.menuService.update(id, updateMenuDto)
   }
 
   @Delete(':id')
