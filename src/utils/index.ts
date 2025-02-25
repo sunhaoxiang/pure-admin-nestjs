@@ -168,6 +168,39 @@ export function createFuzzySearchFilter<T extends string>(
   } as { [K in T]?: { contains: string } }
 }
 
+interface QueryFilterOptions<T extends string, V> {
+  field: T
+  value?: V
+  isFuzzy?: boolean
+}
+
+/**
+ * 创建查询条件
+ * @param options 查询选项
+ * @param options.field 字段名
+ * @param options.value 值
+ * @param options.isFuzzy 是否使用模糊搜索（仅对字符串类型有效）
+ */
+export function createQueryFilter<T extends string, V>({
+  field,
+  value,
+  isFuzzy = false,
+}: QueryFilterOptions<T, V>) {
+  if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+    return {}
+  }
+
+  if (typeof value === 'string' && isFuzzy) {
+    return {
+      [field]: { contains: value.trim() },
+    }
+  }
+
+  return {
+    [field]: value,
+  }
+}
+
 /**
  * 创建逗号分隔的模糊搜索条件
  * @param field 要搜索的字段名

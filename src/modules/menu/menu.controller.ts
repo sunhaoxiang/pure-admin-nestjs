@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UsePipes } from '@nestjs/common'
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { MenuType } from '@prisma/client'
 
 import { updateValidationPipe } from '@/pipes'
 
@@ -11,15 +12,6 @@ import { MenuService } from './menu.service'
 @ApiTags('菜单管理模块')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
-
-  // @Get()
-  // @ApiOperation({ summary: '获取菜单列表' })
-  // @ApiOkResponse({
-  //   description: '获取菜单列表成功',
-  // })
-  // findAll() {
-  //   return this.menuService.findAll()
-  // }
 
   @Get()
   @ApiBearerAuth()
@@ -39,6 +31,16 @@ export class MenuController {
   })
   findFlatMenuTree() {
     return this.menuService.findFlatMenuTree()
+  }
+
+  @Get('/permission')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '获取有权限的菜单和按钮列表' })
+  @ApiOkResponse({
+    description: '获取有权限的菜单和按钮列表成功',
+  })
+  findPermissionMenus(@Query('type') type: MenuType) {
+    return this.menuService.findPermissionMenus(type)
   }
 
   @Post()

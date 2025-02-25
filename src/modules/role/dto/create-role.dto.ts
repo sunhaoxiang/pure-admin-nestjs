@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsOptional } from 'class-validator'
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class CreateRoleDto {
   @ApiProperty()
@@ -13,4 +13,16 @@ export class CreateRoleDto {
   @ApiProperty({ required: false })
   @IsOptional()
   description?: string
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  menuPermissions?: string[]
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  buttonPermissions?: string[]
 }

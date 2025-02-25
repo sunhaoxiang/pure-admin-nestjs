@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { Menu } from '@prisma/client'
+import { Menu, MenuType, Prisma } from '@prisma/client'
 
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { convertFlatDataToTree, TreeNode } from '@/utils'
+import { convertFlatDataToTree, createQueryFilter, TreeNode } from '@/utils'
 
 import { CreateMenuDto } from './dto/create-menu.dto'
 import { UpdateMenuDto } from './dto/update-menu.dto'
@@ -49,5 +49,15 @@ export class MenuService {
     return this.prisma.menu.delete({
       where: { id },
     })
+  }
+
+  findPermissionMenus(type: MenuType) {
+    const queryOptions: Prisma.MenuFindManyArgs = {
+      where: {
+        ...createQueryFilter({ field: 'type', value: type }),
+      },
+    }
+
+    return this.prisma.menu.findMany(queryOptions)
   }
 }

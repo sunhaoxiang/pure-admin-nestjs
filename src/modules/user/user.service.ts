@@ -26,21 +26,7 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
     isAdmin: true
     roles: {
       select: {
-        role: {
-          select: {
-            apis: {
-              select: {
-                api: {
-                  select: {
-                    code: true
-                    method: true
-                    path: true
-                  }
-                }
-              }
-            }
-          }
-        }
+        role: true
       }
     }
   }
@@ -49,8 +35,6 @@ export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
 export interface TransformedUserInfo {
   id: number
   username: string
-  apis: string[]
-  isAdmin: boolean
 }
 
 @Injectable()
@@ -169,21 +153,7 @@ export class UserService {
         isAdmin: true,
         roles: {
           select: {
-            role: {
-              select: {
-                apis: {
-                  select: {
-                    api: {
-                      select: {
-                        code: true,
-                        method: true,
-                        path: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            role: true,
           },
         },
       },
@@ -223,10 +193,6 @@ export class UserService {
     return {
       id: user.id,
       username: user.username,
-      apis: user.roles
-        .flatMap(item => item.role.apis)
-        .map(item => item.api.code),
-      isAdmin: user.isAdmin,
     }
   }
 
