@@ -21,6 +21,13 @@ export class RoleController {
     return this.roleService.findMany(roleListDto)
   }
 
+  @Get('all')
+  @ApiOperation({ summary: '获取所有角色' })
+  @ApiOkResponse({ description: '获取所有角色成功' })
+  async all() {
+    return this.roleService.findAll()
+  }
+
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: '创建角色' })

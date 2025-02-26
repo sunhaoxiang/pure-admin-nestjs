@@ -15,7 +15,6 @@ const prisma = new PrismaClient()
 async function main() {
   const username = 'pure-admin'
   const password = await hashPassword('123456')
-  console.log(password)
 
   const newUser: Prisma.UserCreateInput = {
     username,

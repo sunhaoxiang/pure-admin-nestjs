@@ -6,6 +6,7 @@ import { Logger } from 'winston'
 import { CacheService } from '@/modules/cache/cache.service'
 import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
+import { JwtUserData } from '@/types'
 import { createFuzzySearchFilter, createPaginationParams, hashPassword, verifyPassword } from '@/utils'
 
 import { CreateUserDto } from './dto/create-user.dto'
@@ -47,7 +48,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { username } = createUserDto
+    const { username, password, roles, ...rest } = createUserDto
 
     const isExist = await this.prisma.user.exists({
       where: { username },
@@ -59,12 +60,49 @@ export class UserService {
 
     const user = await this.prisma.user.create({
       data: {
-        ...createUserDto,
-        password: await hashPassword(createUserDto.password),
+        ...rest,
+        username,
+        password: await hashPassword(password),
+        roles: {
+          create: roles.map(roleId => ({ roleId })),
+        },
       },
     })
 
     return user
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { roles, ...rest } = updateUserDto
+
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        ...rest,
+        roles: {
+          deleteMany: {},
+          create: roles.map(roleId => ({ roleId })),
+        },
+      },
+    })
+  }
+
+  async delete(id: number) {
+    return this.prisma.user.delete({
+      where: {
+        id,
+      },
+    })
+  }
+
+  async deleteMany(ids: number[]) {
+    return this.prisma.user.deleteMany({
+      where: {
+        id: { in: ids },
+      },
+    })
   }
 
   async findMany(userListDto: UserListDto) {
@@ -110,34 +148,36 @@ export class UserService {
         phone: true,
         headPic: true,
         isFrozen: true,
-        // 可以根据需要添加或移除字段
+        roles: {
+          select: {
+            role: true,
+          },
+        },
       },
     })
 
     if (!user) {
-      throw new NotFoundException(`用户不存在`)
+      throw new NotFoundException()
     }
 
-    return user
+    const { roles, ...userData } = user
+    const flattenedRoles = roles.map(item => item.role.id)
+
+    return {
+      ...userData,
+      roles: flattenedRoles,
+    }
   }
 
   findUser(args: Prisma.UserFindUniqueArgs) {
     return this.prisma.user.findUnique(args)
   }
 
-  async validateUser(username: string, rawPassword: string) {
-    const user = await this.findUser(
-      {
-        where: { username },
-        select: { id: true, username: true, password: true },
-      },
-    )
-
-    if (!user || !(await verifyPassword(rawPassword, user.password))) {
-      throw new UnauthorizedException({ message: '用户名或密码错误' })
+  transformUserInfo(user: UserWithRolesAndPermissions): TransformedUserInfo {
+    return {
+      id: user.id,
+      username: user.username,
     }
-
-    return user
   }
 
   findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
@@ -160,18 +200,79 @@ export class UserService {
     })
   }
 
-  async getUserInfo(id: number) {
+  async findUserWithPermissions(where: Prisma.UserWhereUniqueInput) {
+    const user = this.prisma.user.findUnique({
+      where,
+      select: {
+        id: true,
+      },
+    })
+
+    return user
+  }
+
+  async validateUser(username: string, rawPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        isSuperAdmin: true,
+        isFrozen: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
+      },
+    })
+
+    if (!user) {
+      throw new UnauthorizedException({ message: '用户名或密码错误' })
+    }
+
+    const { password, isFrozen, roles, ...userData } = user
+
+    if (!(await verifyPassword(rawPassword, password))) {
+      throw new UnauthorizedException({ message: '用户名或密码错误' })
+    }
+
+    if (isFrozen) {
+      throw new UnauthorizedException({ message: '用户已冻结' })
+    }
+
+    const menuSet = new Set<string>()
+    const buttonSet = new Set<string>()
+
+    roles.forEach((item) => {
+      item.role.menuPermissions.forEach(p => menuSet.add(p))
+      item.role.buttonPermissions.forEach(p => buttonSet.add(p))
+    })
+
+    const menuPermissions = Array.from(menuSet)
+    const buttonPermissions = Array.from(buttonSet)
+
+    return {
+      ...userData,
+      menuPermissions,
+      buttonPermissions,
+    }
+  }
+
+  async getUserInfo(jwtUserData: JwtUserData) {
     const user = await this.findUser({
-      where: { id },
+      where: { id: jwtUserData.id },
       select: {
         id: true,
         username: true,
         nickName: true,
         headPic: true,
+        isSuperAdmin: true,
       },
     })
 
-    const userMenu = await this.menuService.findMenuTree()
+    const userMenu = await this.menuService.findUserMenuTree(jwtUserData)
 
     const vo = new UserInfoVo()
     vo.id = user.id
@@ -188,13 +289,6 @@ export class UserService {
 
   //   return this.transformUserInfo(user)
   // }
-
-  transformUserInfo(user: UserWithRolesAndPermissions): TransformedUserInfo {
-    return {
-      id: user.id,
-      username: user.username,
-    }
-  }
 
   async register(user: RegisterUserDto) {
     const captcha = await this.cacheService.get(`captcha_${user.email}`)
@@ -271,31 +365,6 @@ export class UserService {
       this.logger.error(e, UserService)
       return { message: '密码修改失败' }
     }
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: updateUserDto,
-    })
-  }
-
-  async delete(id: number) {
-    return this.prisma.user.delete({
-      where: {
-        id,
-      },
-    })
-  }
-
-  async deleteMany(ids: number[]) {
-    return this.prisma.user.deleteMany({
-      where: {
-        id: { in: ids },
-      },
-    })
   }
 
   async freezeUserById(id: number) {

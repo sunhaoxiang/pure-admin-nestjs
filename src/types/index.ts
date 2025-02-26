@@ -7,11 +7,14 @@ declare module 'fastify' {
 export interface JwtUserData {
   id: number
   username: string
+  isSuperAdmin: boolean
+  menuPermissions: string[]
+  buttonPermissions: string[]
 }
 
-export interface UserAuthorizationInfo {
-  id: number
-  username: string
-  permissions: string[]
-  isSuperAdmin: boolean
-}
+// export interface UserAuthorizationInfo {
+//   id: number
+//   username: string
+//   isSuperAdmin: boolean
+//   menuPermissions: string[]
+// }

@@ -31,6 +31,10 @@ export class RoleService {
     return { list, total }
   }
 
+  async findAll() {
+    return this.prisma.role.findMany()
+  }
+
   async findOne(id: number) {
     return this.prisma.role.findUnique({
       where: { id },

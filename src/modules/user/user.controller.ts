@@ -25,6 +25,7 @@ import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
+import { JwtUserData } from '@/types'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
@@ -184,8 +185,8 @@ export class UserController {
   // @CacheUserKey('user:info')
   // @CacheTTL(UserController.CACHE_TTL)
   // @UseInterceptors(CacheInterceptor)
-  async info(@UserInfo('id') id: number) {
-    return this.userService.getUserInfo(id)
+  async info(@UserInfo() jwtUserData: JwtUserData) {
+    return this.userService.getUserInfo(jwtUserData)
   }
 
   @Post(['update_password', 'admin/update_password'])
