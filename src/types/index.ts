@@ -9,7 +9,7 @@ export interface JwtUserData {
   username: string
   isSuperAdmin: boolean
   menuPermissions: string[]
-  buttonPermissions: string[]
+  uiPermissions: string[]
 }
 
 // export interface UserAuthorizationInfo {

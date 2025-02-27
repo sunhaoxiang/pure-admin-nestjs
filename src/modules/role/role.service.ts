@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 
 import { PrismaService } from '@/modules/prisma/prisma.service'
-import { createFuzzySearchFilter, createPaginationParams } from '@/utils'
+import { createPaginationParams, createSingleFieldFilter } from '@/utils'
 
 import { CreateRoleDto } from './dto/create-role.dto'
 import { RoleListDto } from './dto/role-list.dto'
@@ -17,8 +17,8 @@ export class RoleService {
 
     const queryOptions: Prisma.RoleFindManyArgs = {
       where: {
-        ...createFuzzySearchFilter('name', name),
-        ...createFuzzySearchFilter('code', code),
+        ...createSingleFieldFilter({ field: 'name', value: name, isFuzzy: true }),
+        ...createSingleFieldFilter({ field: 'code', value: code, isFuzzy: true }),
       },
     }
 

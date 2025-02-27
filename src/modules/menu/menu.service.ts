@@ -3,7 +3,7 @@ import { Menu, MenuType, Prisma } from '@prisma/client'
 
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { JwtUserData } from '@/types'
-import { convertFlatDataToTree, createQueryFilter, TreeNode } from '@/utils'
+import { convertFlatDataToTree, createSingleFieldFilter, TreeNode } from '@/utils'
 
 import { CreateMenuDto } from './dto/create-menu.dto'
 import { UpdateMenuDto } from './dto/update-menu.dto'
@@ -78,7 +78,7 @@ export class MenuService {
   findPermissionMenus(type: MenuType) {
     const queryOptions: Prisma.MenuFindManyArgs = {
       where: {
-        ...createQueryFilter({ field: 'type', value: type }),
+        ...createSingleFieldFilter({ field: 'type', value: type }),
       },
     }
 

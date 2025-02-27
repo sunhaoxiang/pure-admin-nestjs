@@ -149,25 +149,6 @@ export function isHttpUrl(url: string) {
   return /^https?:\/\//.test(url)
 }
 
-/**
- * 创建单字段模糊搜索条件
- * @param field 要搜索的字段名
- * @param value 搜索值
- * @returns Prisma contains 条件对象
- */
-export function createFuzzySearchFilter<T extends string>(
-  field: T,
-  value?: string,
-): { [K in T]?: { contains: string } } {
-  if (!value?.trim()) {
-    return {} as { [K in T]?: { contains: string } }
-  }
-
-  return {
-    [field]: { contains: value.trim() },
-  } as { [K in T]?: { contains: string } }
-}
-
 interface QueryFilterOptions<T extends string, V> {
   field: T
   value?: V
@@ -175,13 +156,13 @@ interface QueryFilterOptions<T extends string, V> {
 }
 
 /**
- * 创建查询条件
+ * 创建单字段查询条件
  * @param options 查询选项
  * @param options.field 字段名
  * @param options.value 值
  * @param options.isFuzzy 是否使用模糊搜索（仅对字符串类型有效）
  */
-export function createQueryFilter<T extends string, V>({
+export function createSingleFieldFilter<T extends string, V>({
   field,
   value,
   isFuzzy = false,

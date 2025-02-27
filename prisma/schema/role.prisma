@@ -1,11 +1,11 @@
 model Role {
-  id                Int        @id @default(autoincrement())
-  code              String     @unique @db.VarChar(20)
-  name              String     @unique @db.VarChar(20)
-  description       String?    @db.VarChar(100)
-  menuPermissions   String[]
-  buttonPermissions String[]
-  createTime        DateTime   @default(now())
-  updateTime        DateTime   @updatedAt
-  users             UserRole[]
+  id              Int        @id @default(autoincrement())
+  code            String     @unique @db.VarChar(20)
+  name            String     @unique @db.VarChar(20)
+  description     String?    @db.VarChar(100)
+  menuPermissions String[]
+  uiPermissions   String[]
+  createTime      DateTime   @default(now())
+  updateTime      DateTime   @updatedAt
+  users           UserRole[]
 }

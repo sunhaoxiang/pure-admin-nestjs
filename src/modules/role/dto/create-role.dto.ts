@@ -24,5 +24,5 @@ export class CreateRoleDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  buttonPermissions?: string[]
+  uiPermissions?: string[]
 }

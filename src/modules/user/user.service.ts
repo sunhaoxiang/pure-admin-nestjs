@@ -7,36 +7,13 @@ import { CacheService } from '@/modules/cache/cache.service'
 import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { JwtUserData } from '@/types'
-import { createFuzzySearchFilter, createPaginationParams, hashPassword, verifyPassword } from '@/utils'
+import { createPaginationParams, createSingleFieldFilter, hashPassword, verifyPassword } from '@/utils'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListDto } from './dto/user-list.dto'
-import { UserInfoVo } from './vo/user-info.vo'
-
-export type UserWithRolesAndPermissions = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    username: true
-    nickName: true
-    email: true
-    headPic: true
-    phone: true
-    isSuperAdmin: true
-    roles: {
-      select: {
-        role: true
-      }
-    }
-  }
-}>
-
-export interface TransformedUserInfo {
-  id: number
-  username: string
-}
 
 @Injectable()
 export class UserService {
@@ -110,10 +87,10 @@ export class UserService {
 
     const queryOptions: Prisma.UserFindManyArgs = {
       where: {
-        ...createFuzzySearchFilter('username', username),
-        ...createFuzzySearchFilter('nickName', nickName),
-        ...createFuzzySearchFilter('email', email),
-        ...createFuzzySearchFilter('phone', phone),
+        ...createSingleFieldFilter({ field: 'username', value: username, isFuzzy: true }),
+        ...createSingleFieldFilter({ field: 'nickName', value: nickName, isFuzzy: true }),
+        ...createSingleFieldFilter({ field: 'email', value: email, isFuzzy: true }),
+        ...createSingleFieldFilter({ field: 'phone', value: phone, isFuzzy: true }),
       },
       select: {
         id: true,
@@ -173,44 +150,6 @@ export class UserService {
     return this.prisma.user.findUnique(args)
   }
 
-  transformUserInfo(user: UserWithRolesAndPermissions): TransformedUserInfo {
-    return {
-      id: user.id,
-      username: user.username,
-    }
-  }
-
-  findUserWithRoles(where: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
-      where,
-      select: {
-        id: true,
-        username: true,
-        nickName: true,
-        email: true,
-        headPic: true,
-        phone: true,
-        isSuperAdmin: true,
-        roles: {
-          select: {
-            role: true,
-          },
-        },
-      },
-    })
-  }
-
-  async findUserWithPermissions(where: Prisma.UserWhereUniqueInput) {
-    const user = this.prisma.user.findUnique({
-      where,
-      select: {
-        id: true,
-      },
-    })
-
-    return user
-  }
-
   async validateUser(username: string, rawPassword: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
@@ -247,16 +186,16 @@ export class UserService {
 
     roles.forEach((item) => {
       item.role.menuPermissions.forEach(p => menuSet.add(p))
-      item.role.buttonPermissions.forEach(p => buttonSet.add(p))
+      item.role.uiPermissions.forEach(p => buttonSet.add(p))
     })
 
     const menuPermissions = Array.from(menuSet)
-    const buttonPermissions = Array.from(buttonSet)
+    const uiPermissions = Array.from(buttonSet)
 
     return {
       ...userData,
       menuPermissions,
-      buttonPermissions,
+      uiPermissions,
     }
   }
 
@@ -273,22 +212,25 @@ export class UserService {
     })
 
     const userMenu = await this.menuService.findUserMenuTree(jwtUserData)
+    let menuPermissions: string[] = []
+    let uiPermissions: string[] = []
 
-    const vo = new UserInfoVo()
-    vo.id = user.id
-    vo.username = user.username
-    vo.nickName = user.nickName
-    vo.headPic = user.headPic
-    vo.menus = userMenu
+    if (user.isSuperAdmin) {
+      menuPermissions = ['*']
+      uiPermissions = ['*']
+    }
+    else {
+      menuPermissions = jwtUserData.menuPermissions
+      uiPermissions = jwtUserData.uiPermissions
+    }
 
-    return vo
+    return {
+      ...user,
+      menus: userMenu,
+      menuPermissions,
+      uiPermissions,
+    }
   }
-
-  // async getUserInfo(where: Prisma.UserWhereUniqueInput) {
-  //   const user = await this.findUserWithRoles(where)
-
-  //   return this.transformUserInfo(user)
-  // }
 
   async register(user: RegisterUserDto) {
     const captcha = await this.cacheService.get(`captcha_${user.email}`)
@@ -329,14 +271,6 @@ export class UserService {
       this.logger.error(e, UserService)
       return { message: '注册失败' }
     }
-  }
-
-  findUserDetailById(id: number) {
-    return this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-    })
   }
 
   async updatePassword(id: number, passwordDto: UpdateUserPasswordDto) {

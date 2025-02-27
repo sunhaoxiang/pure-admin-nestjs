@@ -19,6 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       username: payload.username,
       isSuperAdmin: payload.isSuperAdmin,
       menuPermissions: payload.menuPermissions,
+      uiPermissions: payload.uiPermissions,
     }
   }
 }
