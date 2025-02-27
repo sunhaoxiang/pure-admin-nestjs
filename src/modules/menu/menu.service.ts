@@ -32,7 +32,7 @@ export class MenuService {
   async findUserMenuTree(jwtUserData: JwtUserData) {
     const baseCondition = {
       type: {
-        not: MenuType.BUTTON,
+        not: MenuType.UI,
       },
     }
 
