@@ -1,7 +1,7 @@
 enum MenuType {
   DIRECTORY // 目录类型资源
   MENU // 菜单类型资源
-  UI // 页面类型资源
+  FEATURE // 功能类型资源
 }
 
 enum ApiType {

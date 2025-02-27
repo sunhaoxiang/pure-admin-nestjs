@@ -186,16 +186,16 @@ export class UserService {
 
     roles.forEach((item) => {
       item.role.menuPermissions.forEach(p => menuSet.add(p))
-      item.role.uiPermissions.forEach(p => buttonSet.add(p))
+      item.role.featurePermissions.forEach(p => buttonSet.add(p))
     })
 
     const menuPermissions = Array.from(menuSet)
-    const uiPermissions = Array.from(buttonSet)
+    const featurePermissions = Array.from(buttonSet)
 
     return {
       ...userData,
       menuPermissions,
-      uiPermissions,
+      featurePermissions,
     }
   }
 
@@ -213,22 +213,22 @@ export class UserService {
 
     const userMenu = await this.menuService.findUserMenuTree(jwtUserData)
     let menuPermissions: string[] = []
-    let uiPermissions: string[] = []
+    let featurePermissions: string[] = []
 
     if (user.isSuperAdmin) {
       menuPermissions = ['*']
-      uiPermissions = ['*']
+      featurePermissions = ['*']
     }
     else {
       menuPermissions = jwtUserData.menuPermissions
-      uiPermissions = jwtUserData.uiPermissions
+      featurePermissions = jwtUserData.featurePermissions
     }
 
     return {
       ...user,
       menus: userMenu,
       menuPermissions,
-      uiPermissions,
+      featurePermissions,
     }
   }
 
