@@ -39,7 +39,7 @@ export class LoginUserVo {
   userInfo: UserInfo
 
   @ApiProperty()
-  token: string
+  accessToken: string
 
   @ApiProperty()
   refreshToken: string

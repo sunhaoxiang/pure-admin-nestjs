@@ -53,7 +53,7 @@ export class UserController {
   @Post('login')
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: FastifyRequest) {
-    const token = this.jwtService.sign(
+    const accessToken = this.jwtService.sign(
       req.user,
       {
         expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
@@ -68,9 +68,71 @@ export class UserController {
     )
 
     return {
-      token,
+      accessToken,
       refreshToken,
     }
+  }
+
+  @Public()
+  @Get('refresh')
+  @ApiQuery({
+    name: 'refreshToken',
+    type: String,
+    description: '刷新 token',
+    required: true,
+    example: '',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'token 已失效，请重新登录',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '刷新成功',
+    type: RefreshTokenVo,
+  })
+  async refresh(@Query('refreshToken') refreshToken: string) {
+    try {
+      const data = this.jwtService.verify(refreshToken)
+
+      const payload = await this.userService.getJwtPayloadData(data.id)
+
+      const signedAccessToken = this.jwtService.sign(
+        payload,
+        {
+          expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
+        },
+      )
+
+      const signedRefreshToken = this.jwtService.sign(
+        payload,
+        {
+          expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
+        },
+      )
+
+      return {
+        accessToken: signedAccessToken,
+        refreshToken: signedRefreshToken,
+      }
+    }
+    catch {
+      throw new UnauthorizedException('token 已失效，请重新登录')
+    }
+  }
+
+  @Get('info')
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'success',
+    type: UserDetailVo,
+  })
+  // @CacheUserKey('user:info')
+  // @CacheTTL(UserController.CACHE_TTL)
+  // @UseInterceptors(CacheInterceptor)
+  async info(@UserInfo() jwtUserData: JwtUserData) {
+    return this.userService.getUserInfo(jwtUserData)
   }
 
   @Public()
@@ -115,78 +177,6 @@ export class UserController {
   })
   async register(@Body() registerUser: RegisterUserDto) {
     return this.userService.register(registerUser)
-  }
-
-  @Public()
-  @Get('refresh')
-  @ApiQuery({
-    name: 'refreshToken',
-    type: String,
-    description: '刷新 token',
-    required: true,
-    example: '',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'token 已失效，请重新登录',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '刷新成功',
-    type: RefreshTokenVo,
-  })
-  async refresh(@Query('refreshToken') refreshToken: string) {
-    try {
-      const data = this.jwtService.verify(refreshToken)
-
-      const user = await this.userService.findUser(
-        {
-          where: { id: data.id },
-          select: { id: true, username: true },
-        },
-      )
-
-      if (!user) {
-        throw new UnauthorizedException('token 已失效，请重新登录')
-      }
-
-      const signedToken = this.jwtService.sign(
-        user,
-        {
-          expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
-        },
-      )
-
-      const signedRefreshToken = this.jwtService.sign(
-        user,
-        {
-          expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
-        },
-      )
-
-      const vo = new RefreshTokenVo()
-      vo.token = signedToken
-      vo.refreshToken = signedRefreshToken
-
-      return vo
-    }
-    catch {
-      throw new UnauthorizedException('token 已失效，请重新登录')
-    }
-  }
-
-  @Get('info')
-  @ApiBearerAuth()
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'success',
-    type: UserDetailVo,
-  })
-  // @CacheUserKey('user:info')
-  // @CacheTTL(UserController.CACHE_TTL)
-  // @UseInterceptors(CacheInterceptor)
-  async info(@UserInfo() jwtUserData: JwtUserData) {
-    return this.userService.getUserInfo(jwtUserData)
   }
 
   @Post(['update_password', 'admin/update_password'])

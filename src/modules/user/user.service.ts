@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, Role } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 
@@ -181,16 +181,37 @@ export class UserService {
       throw new UnauthorizedException({ message: '用户已冻结' })
     }
 
-    const menuSet = new Set<string>()
-    const buttonSet = new Set<string>()
+    const { menuPermissions, featurePermissions } = await this.getUserPermissions(roles)
 
-    roles.forEach((item) => {
-      item.role.menuPermissions.forEach(p => menuSet.add(p))
-      item.role.featurePermissions.forEach(p => buttonSet.add(p))
+    return {
+      ...userData,
+      menuPermissions,
+      featurePermissions,
+    }
+  }
+
+  async getJwtPayloadData(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        isSuperAdmin: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
+      },
     })
 
-    const menuPermissions = Array.from(menuSet)
-    const featurePermissions = Array.from(buttonSet)
+    if (!user) {
+      throw new NotFoundException()
+    }
+
+    const { roles, ...userData } = user
+
+    const { menuPermissions, featurePermissions } = await this.getUserPermissions(roles)
 
     return {
       ...userData,
@@ -319,5 +340,20 @@ export class UserService {
         isFrozen: true,
       },
     })
+  }
+
+  async getUserPermissions(roles: { role: Role }[]) {
+    const menuSet = new Set<string>()
+    const featureSet = new Set<string>()
+
+    roles.forEach((item) => {
+      item.role.menuPermissions.forEach(p => menuSet.add(p))
+      item.role.featurePermissions.forEach(p => featureSet.add(p))
+    })
+
+    const menuPermissions = Array.from(menuSet)
+    const featurePermissions = Array.from(featureSet)
+
+    return { menuPermissions, featurePermissions }
   }
 }

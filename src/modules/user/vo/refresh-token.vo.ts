@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class RefreshTokenVo {
   @ApiProperty()
-  token: string
+  accessToken: string
 
   @ApiProperty()
   refreshToken: string
