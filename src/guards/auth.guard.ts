@@ -1,7 +1,7 @@
 import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport'
-// import { FastifyRequest } from 'fastify'
+import { FastifyRequest } from 'fastify'
 
 import { IS_PUBLIC_KEY, PERMISSIONS_KEY } from '@/decorators'
 // import { UserService } from '@/modules/user/user.service'
@@ -32,6 +32,13 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
 
       if (!isAuthenticated) {
         throw new UnauthorizedException('Token 失效，请重新登录')
+      }
+
+      const request = context.switchToHttp().getRequest<FastifyRequest>()
+
+      // refreshToken 只能用于刷新 accessToken，不能用于其他接口
+      if (request.routeOptions.url !== 'user/refresh' && request.user.tokenType !== 'access') {
+        throw new UnauthorizedException('无效的 Token 类型')
       }
 
       return true

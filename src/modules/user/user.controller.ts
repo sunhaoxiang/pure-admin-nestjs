@@ -54,14 +54,20 @@ export class UserController {
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: FastifyRequest) {
     const accessToken = this.jwtService.sign(
-      req.user,
+      {
+        ...req.user,
+        type: 'access',
+      },
       {
         expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
       },
     )
 
     const refreshToken = this.jwtService.sign(
-      req.user,
+      {
+        ...req.user,
+        type: 'refresh',
+      },
       {
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
       },
@@ -98,14 +104,20 @@ export class UserController {
       const payload = await this.userService.getJwtPayloadData(data.id)
 
       const signedAccessToken = this.jwtService.sign(
-        payload,
+        {
+          ...payload,
+          type: 'access',
+        },
         {
           expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
         },
       )
 
       const signedRefreshToken = this.jwtService.sign(
-        payload,
+        {
+          ...payload,
+          type: 'refresh',
+        },
         {
           expiresIn: this.configService.get('JWT_REFRESH_EXPIRES') || '7d',
         },

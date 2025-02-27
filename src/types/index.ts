@@ -10,6 +10,7 @@ export interface JwtUserData {
   isSuperAdmin: boolean
   menuPermissions: string[]
   featurePermissions: string[]
+  tokenType: 'access' | 'refresh'
 }
 
 // export interface UserAuthorizationInfo {
