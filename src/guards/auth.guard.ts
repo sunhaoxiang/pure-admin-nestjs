@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core'
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport'
 import { FastifyRequest } from 'fastify'
 
-import { IS_PUBLIC_KEY, PERMISSIONS_KEY } from '@/decorators'
+import { IS_PUBLIC_KEY, IS_REFRESH_KEY, PERMISSIONS_KEY } from '@/decorators'
 // import { UserService } from '@/modules/user/user.service'
 
 @Injectable()
@@ -34,18 +34,18 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
         throw new UnauthorizedException('Token 失效，请重新登录')
       }
 
+      const isRefresh = this.reflector.get<boolean>(IS_REFRESH_KEY, context.getHandler())
       const request = context.switchToHttp().getRequest<FastifyRequest>()
 
-      // refreshToken 只能用于刷新 accessToken，不能用于其他接口
-      if (request.routeOptions.url !== 'user/refresh' && request.user.tokenType !== 'access') {
-        throw new UnauthorizedException('无效的 Token 类型')
+      if (!isRefresh && request.user.tokenType !== 'access') {
+        throw new UnauthorizedException('refreshToken 只能用于刷新接口')
       }
 
       return true
     }
     catch (error) {
       if (error instanceof UnauthorizedException) {
-        throw new UnauthorizedException('Token 失效，请重新登录')
+        throw new UnauthorizedException('accessToken 不能用于刷新接口')
       }
 
       throw error

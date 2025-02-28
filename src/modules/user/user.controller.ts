@@ -21,7 +21,7 @@ import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/
 import { FastifyRequest } from 'fastify'
 
 import { DeleteManyDto } from '@/common/dto'
-import { CacheTTL, CacheUserKey, Public, UserInfo } from '@/decorators'
+import { CacheTTL, CacheUserKey, Public, Refresh, UserInfo } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
 import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
@@ -79,7 +79,7 @@ export class UserController {
     }
   }
 
-  @Public()
+  @Refresh()
   @Get('refresh')
   @ApiQuery({
     name: 'refreshToken',
