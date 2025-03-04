@@ -3,6 +3,7 @@ import { Prisma, Role } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 
+import { ApiService } from '@/modules/api/api.service'
 import { CacheService } from '@/modules/cache/cache.service'
 import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
@@ -21,6 +22,7 @@ export class UserService {
     private readonly prisma: PrismaService,
     private readonly cacheService: CacheService,
     private readonly menuService: MenuService,
+    private readonly apiService: ApiService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
@@ -211,12 +213,13 @@ export class UserService {
 
     const { roles, ...userData } = user
 
-    const { menuPermissions, featurePermissions } = await this.getUserPermissions(roles)
+    const { menuPermissions, featurePermissions, apiPermissions } = await this.getUserPermissions(roles)
 
     return {
       ...userData,
       menuPermissions,
       featurePermissions,
+      apiPermissions,
     }
   }
 
@@ -235,14 +238,17 @@ export class UserService {
     const userMenu = await this.menuService.findUserMenuTree(jwtUserData)
     let menuPermissions: string[] = []
     let featurePermissions: string[] = []
+    let apiPermissions: string[] = []
 
     if (user.isSuperAdmin) {
       menuPermissions = ['*']
       featurePermissions = ['*']
+      apiPermissions = ['*']
     }
     else {
       menuPermissions = jwtUserData.menuPermissions
       featurePermissions = jwtUserData.featurePermissions
+      apiPermissions = jwtUserData.apiPermissions
     }
 
     return {
@@ -250,6 +256,7 @@ export class UserService {
       menus: userMenu,
       menuPermissions,
       featurePermissions,
+      apiPermissions,
     }
   }
 
@@ -345,15 +352,17 @@ export class UserService {
   async getUserPermissions(roles: { role: Role }[]) {
     const menuSet = new Set<string>()
     const featureSet = new Set<string>()
-
+    const apiSet = new Set<string>()
     roles.forEach((item) => {
       item.role.menuPermissions.forEach(p => menuSet.add(p))
       item.role.featurePermissions.forEach(p => featureSet.add(p))
+      item.role.apiPermissions.forEach(p => apiSet.add(p))
     })
 
     const menuPermissions = Array.from(menuSet)
     const featurePermissions = Array.from(featureSet)
+    const apiPermissions = Array.from(apiSet)
 
-    return { menuPermissions, featurePermissions }
+    return { menuPermissions, featurePermissions, apiPermissions }
   }
 }

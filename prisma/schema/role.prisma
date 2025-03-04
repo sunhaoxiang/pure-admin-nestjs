@@ -5,6 +5,7 @@ model Role {
   description        String?    @db.VarChar(100)
   menuPermissions    String[]
   featurePermissions String[]
+  apiPermissions     String[]
   createTime         DateTime   @default(now())
   updateTime         DateTime   @updatedAt
   users              UserRole[]

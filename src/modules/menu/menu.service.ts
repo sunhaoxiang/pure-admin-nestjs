@@ -78,6 +78,10 @@ export class MenuService {
   findPermissionMenus(type: MenuType) {
     const queryOptions: Prisma.MenuFindManyArgs = {
       where: {
+        NOT: [
+          { code: null },
+          { code: '' },
+        ],
         ...createSingleFieldFilter({ field: 'type', value: type }),
       },
     }

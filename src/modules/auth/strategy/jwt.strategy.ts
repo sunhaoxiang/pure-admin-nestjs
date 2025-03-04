@@ -20,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       isSuperAdmin: payload.isSuperAdmin,
       menuPermissions: payload.menuPermissions,
       featurePermissions: payload.featurePermissions,
+      apiPermissions: payload.apiPermissions,
       tokenType: payload.type,
     }
   }

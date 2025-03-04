@@ -25,4 +25,10 @@ export class CreateRoleDto {
   @IsArray()
   @IsString({ each: true })
   featurePermissions?: string[]
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  apiPermissions?: string[]
 }

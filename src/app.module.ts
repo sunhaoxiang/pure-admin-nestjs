@@ -15,6 +15,7 @@ import config from '@/configs'
 import { AllExceptionsFilter, HttpExceptionFilter } from '@/filters'
 import { AuthGuard } from '@/guards'
 import { FormatResponseInterceptor, InvokeRecordInterceptor } from '@/interceptors'
+import { ApiModule } from '@/modules/api/api.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { CacheModule } from '@/modules/cache/cache.module'
 import { MenuModule } from '@/modules/menu/menu.module'
@@ -106,10 +107,11 @@ const logDir = 'log'
         }),
       ],
     }),
-    UserModule,
     AuthModule,
-    MenuModule,
+    UserModule,
     RoleModule,
+    MenuModule,
+    ApiModule,
   ],
   controllers: [AppController],
   providers: [
