@@ -4,13 +4,11 @@ import { AuthGuard as PassportAuthGuard } from '@nestjs/passport'
 import { FastifyRequest } from 'fastify'
 
 import { IS_PUBLIC_KEY, IS_REFRESH_KEY, PERMISSIONS_KEY } from '@/decorators'
-// import { UserService } from '@/modules/user/user.service'
 
 @Injectable()
 export class AuthGuard extends PassportAuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
-    // private userService: UserService,
   ) {
     super()
   }
@@ -41,6 +39,27 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
         throw new UnauthorizedException('refreshToken 只能用于刷新接口')
       }
 
+      if (request.user.isSuperAdmin) {
+        return true
+      }
+
+      const requiredApiPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
+        context.getClass(),
+        context.getHandler(),
+      ])
+
+      if (requiredApiPermissions.length === 0) {
+        return true
+      }
+
+      const userApiPermissions = request.user.apiPermissions
+
+      const hasAllPermissions = requiredApiPermissions.every(permission => userApiPermissions.includes(permission))
+
+      if (!hasAllPermissions) {
+        throw new ForbiddenException('您没有访问该接口的权限')
+      }
+
       return true
     }
     catch (error) {
@@ -50,36 +69,5 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
 
       throw error
     }
-
-    // const httpContext = context.switchToHttp()
-    // const request = httpContext.getRequest<FastifyRequest>()
-
-    // const { method, url } = request.routeOptions
-
-    // console.log('--------------------------------')
-    // console.log(method, url)
-    // console.log('--------------------------------')
-
-    // const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
-    //   context.getClass(),
-    //   context.getHandler(),
-    // ])
-
-    // const userAuthorizationInfo = await this.userService.getUserAuthorizationInfo(request.user.id)
-
-    // if (requiredPermissions.length === 0 || userAuthorizationInfo.isSuperAdmin) {
-    //   return true
-    // }
-
-    // // 进行权限认证
-    // const userPermissions = userAuthorizationInfo.permissions
-
-    // const hasAllPermissions = requiredPermissions.every(permission => userPermissions.includes(permission))
-
-    // if (!hasAllPermissions) {
-    //   throw new ForbiddenException('您没有访问该接口的权限')
-    // }
-
-    // return true
   }
 }

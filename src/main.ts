@@ -8,17 +8,15 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
-  const corsOptions = {
+  const adapter = new FastifyAdapter()
+  adapter.enableCors({
     origin: ['*'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
-  }
+    maxAge: 86400, // 预检请求结果缓存时间（秒）
+  })
 
-  const adapter = new FastifyAdapter()
-  adapter.enableCors(corsOptions)
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter)
-
-  // app.enableCors()
 
   await app.register(helmet)
 
