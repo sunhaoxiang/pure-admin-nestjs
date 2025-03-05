@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { MenuType } from '@prisma/client'
-import { IsNotEmpty, IsNumber, IsOptional, Min, ValidateIf } from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, Min, ValidateIf } from 'class-validator'
 
 export class CreateMenuDto {
   @ApiProperty({ required: false })
@@ -39,4 +39,10 @@ export class CreateMenuDto {
   @IsNumber()
   @Min(0)
   sort?: number = 0
+
+  @ApiProperty({ required: false })
+  @ValidateIf(object => object.type === MenuType.MENU)
+  @IsNotEmpty()
+  @IsBoolean()
+  isShow?: boolean = true
 }

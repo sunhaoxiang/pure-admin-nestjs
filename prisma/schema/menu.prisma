@@ -9,6 +9,7 @@ model Menu {
   description String?  @db.VarChar(100)
   i18nKey     String?  @db.VarChar(50)
   sort        Int      @default(0)
+  isShow      Boolean? @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   parent      Menu?    @relation("MenuHierarchy", fields: [parentId], references: [id])

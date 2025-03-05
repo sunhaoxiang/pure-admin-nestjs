@@ -34,6 +34,7 @@ export class MenuService {
       type: {
         not: MenuType.FEATURE,
       },
+      isShow: true,
     }
 
     const whereCondition = jwtUserData.isSuperAdmin
