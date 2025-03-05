@@ -148,7 +148,7 @@ export class UserController {
     return this.userService.getUserInfo(jwtUserData)
   }
 
-  @Post('update-password')
+  @Post('password')
   @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserPasswordDto,

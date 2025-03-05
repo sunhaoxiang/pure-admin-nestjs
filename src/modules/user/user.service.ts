@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { Prisma, Role } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
@@ -80,7 +80,7 @@ export class UserService {
     }
 
     if (!(await verifyPassword(oldPassword, user.password))) {
-      throw new UnauthorizedException({ message: '旧密码不正确' })
+      throw new ForbiddenException({ message: '旧密码不正确' })
     }
 
     await this.prisma.user.update({
