@@ -175,97 +175,6 @@ export class UserController {
     return '发送成功'
   }
 
-  @Public()
-  @Post('register')
-  @ApiBody({ type: RegisterUserDto })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: '验证码已失效/验证码不正确/用户已存在',
-    type: String,
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '注册成功/失败',
-    type: String,
-  })
-  async register(@Body() registerUser: RegisterUserDto) {
-    return this.userService.register(registerUser)
-  }
-
-  @Post(['update_password', 'admin/update_password'])
-  @ApiBearerAuth()
-  @ApiBody({
-    type: UpdateUserPasswordDto,
-  })
-  @ApiResponse({
-    type: String,
-    description: '密码修改成功',
-  })
-  async updatePassword(
-    @UserInfo('id') id: number,
-    @Body() passwordDto: UpdateUserPasswordDto,
-  ) {
-    return this.userService.updatePassword(id, passwordDto)
-  }
-
-  @Get('update_password/captcha')
-  @ApiBearerAuth()
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '发送成功',
-    type: String,
-  })
-  async updatePasswordCaptcha(@UserInfo('email') address: string) {
-    const code = Math.random().toString().slice(2, 8)
-
-    await this.cacheService.set(`update_password_captcha_${address}`, code, 10 * 60)
-
-    await this.nodemailerService.sendMail({
-      to: address,
-      subject: '更改密码验证码',
-      html: `<p>你的更改密码验证码是 ${code}</p>`,
-    })
-    return '发送成功'
-  }
-
-  // @Post(['update', 'admin/update'])
-  // @ApiBearerAuth()
-  // @ApiBody({
-  //   type: UpdateUserDto,
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.BAD_REQUEST,
-  //   description: '验证码已失效/不正确',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: '更新成功',
-  //   type: String,
-  // })
-  // update(@UserInfo('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(id, updateUserDto)
-  // }
-
-  @Get('update/captcha')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '发送成功',
-    type: String,
-  })
-  @ApiBearerAuth()
-  async updateCaptcha(@UserInfo('email') address: string) {
-    const code = Math.random().toString().slice(2, 8)
-
-    await this.cacheService.set(`update_user_captcha_${address}`, code, 10 * 60)
-
-    await this.nodemailerService.sendMail({
-      to: address,
-      subject: '更改用户信息验证码',
-      html: `<p>你的验证码是 ${code}</p>`,
-    })
-    return '发送成功'
-  }
-
   @Get('freeze')
   @ApiBearerAuth()
   @ApiQuery({
@@ -290,6 +199,7 @@ export class UserController {
   }
 
   @Post()
+  @Permissions(USER.CREATE)
   @ApiBearerAuth()
   @ApiBody({
     type: CreateUserDto,
@@ -299,6 +209,7 @@ export class UserController {
   }
 
   @Delete()
+  @Permissions(USER.DELETE)
   @ApiBearerAuth()
   async deleteMany(@Body() deleteManyDto: DeleteManyDto) {
     return this.userService.deleteMany(deleteManyDto.ids)
@@ -311,6 +222,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @Permissions(USER.UPDATE)
   @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserDto,
@@ -320,6 +232,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Permissions(USER.DELETE)
   @ApiBearerAuth()
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.userService.delete(id)

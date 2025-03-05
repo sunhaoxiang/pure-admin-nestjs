@@ -93,6 +93,7 @@ export class UserService {
         ...createSingleFieldFilter({ field: 'nickName', value: nickName, isFuzzy: true }),
         ...createSingleFieldFilter({ field: 'email', value: email, isFuzzy: true }),
         ...createSingleFieldFilter({ field: 'phone', value: phone, isFuzzy: true }),
+        isSuperAdmin: false,
       },
       select: {
         id: true,
@@ -257,75 +258,6 @@ export class UserService {
       menuPermissions,
       featurePermissions,
       apiPermissions,
-    }
-  }
-
-  async register(user: RegisterUserDto) {
-    const captcha = await this.cacheService.get(`captcha_${user.email}`)
-
-    // console.log(`captcha_${user.email}`, captcha)
-    if (!captcha) {
-      throw new HttpException({ message: '验证码已失效' }, HttpStatus.GONE)
-    }
-
-    if (user.captcha !== captcha) {
-      throw new HttpException({ message: '验证码不正确' }, HttpStatus.UNPROCESSABLE_ENTITY)
-    }
-
-    const foundUser = await this.prisma.user.findUnique({
-      where: {
-        username: user.username,
-      },
-    })
-
-    if (foundUser) {
-      throw new HttpException({ message: '用户已存在' }, HttpStatus.CONFLICT)
-    }
-
-    const newUser = {
-      username: user.username,
-      password: await hashPassword(user.password),
-      email: user.email,
-      nickName: user.nickName,
-    }
-
-    try {
-      await this.prisma.user.create({
-        data: newUser,
-      })
-      return { message: '注册成功' }
-    }
-    catch (e) {
-      this.logger.error(e, UserService)
-      return { message: '注册失败' }
-    }
-  }
-
-  async updatePassword(id: number, passwordDto: UpdateUserPasswordDto) {
-    const captcha = await this.cacheService.get(`update_password_captcha_${passwordDto.email}`)
-
-    if (!captcha) {
-      throw new HttpException({ message: '验证码已失效' }, HttpStatus.UNPROCESSABLE_ENTITY)
-    }
-
-    if (passwordDto.captcha !== captcha) {
-      throw new HttpException({ message: '验证码不正确' }, HttpStatus.BAD_REQUEST)
-    }
-
-    try {
-      await this.prisma.user.update({
-        where: {
-          id,
-        },
-        data: {
-          password: await hashPassword(passwordDto.password),
-        },
-      })
-      return { message: '密码修改成功' }
-    }
-    catch (e) {
-      this.logger.error(e, UserService)
-      return { message: '密码修改失败' }
     }
   }
 
