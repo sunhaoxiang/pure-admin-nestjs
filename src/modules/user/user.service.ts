@@ -1,6 +1,7 @@
-import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma, Role } from '@prisma/client'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
+import { I18nService } from 'nestjs-i18n'
 import { Logger } from 'winston'
 
 import { ApiService } from '@/modules/api/api.service'
@@ -11,7 +12,6 @@ import { JwtUserData } from '@/types'
 import { createPaginationParams, createSingleFieldFilter, hashPassword, verifyPassword } from '@/utils'
 
 import { CreateUserDto } from './dto/create-user.dto'
-import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListDto } from './dto/user-list.dto'
@@ -21,6 +21,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cacheService: CacheService,
+    private readonly i18n: I18nService,
     private readonly menuService: MenuService,
     private readonly apiService: ApiService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
@@ -34,7 +35,7 @@ export class UserService {
     })
 
     if (isExist) {
-      throw new HttpException({ message: '用户已存在' }, HttpStatus.CONFLICT)
+      throw new HttpException({ message: this.i18n.t('common.userExists') }, HttpStatus.CONFLICT)
     }
 
     const user = await this.prisma.user.create({
@@ -80,7 +81,7 @@ export class UserService {
     }
 
     if (!(await verifyPassword(oldPassword, user.password))) {
-      throw new ForbiddenException({ message: '旧密码不正确' })
+      throw new ForbiddenException({ message: this.i18n.t('common.oldPasswordError') })
     }
 
     await this.prisma.user.update({
@@ -88,7 +89,7 @@ export class UserService {
       data: { password: await hashPassword(newPassword) },
     })
 
-    return { message: '密码修改成功' }
+    return { message: this.i18n.t('common.passwordUpdated') }
   }
 
   async delete(id: number) {
@@ -194,17 +195,17 @@ export class UserService {
     })
 
     if (!user) {
-      throw new UnauthorizedException({ message: '用户名或密码错误' })
+      throw new ForbiddenException({ message: this.i18n.t('common.usernameOrPasswordError') })
     }
 
     const { password, isFrozen, roles, ...userData } = user
 
     if (!(await verifyPassword(rawPassword, password))) {
-      throw new UnauthorizedException({ message: '用户名或密码错误' })
+      throw new ForbiddenException({ message: this.i18n.t('common.usernameOrPasswordError') })
     }
 
     if (isFrozen) {
-      throw new UnauthorizedException({ message: '用户已冻结' })
+      throw new ForbiddenException({ message: this.i18n.t('common.userFrozen') })
     }
 
     const { menuPermissions, featurePermissions } = await this.getUserPermissions(roles)
@@ -291,7 +292,7 @@ export class UserService {
       },
     })
     if (!user) {
-      throw new HttpException({ message: '用户不存在' }, HttpStatus.NOT_FOUND)
+      throw new HttpException({ message: this.i18n.t('common.userNotFound') }, HttpStatus.NOT_FOUND)
     }
 
     await this.prisma.user.update({

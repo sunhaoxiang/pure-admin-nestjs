@@ -1,6 +1,6 @@
-import { ValidationPipe } from '@nestjs/common'
+import { I18nValidationPipe } from 'nestjs-i18n'
 
-export const updateValidationPipe = new ValidationPipe({
+export const updateValidationPipe = new I18nValidationPipe({
   transform: true,
   whitelist: true,
   validateCustomDecorators: true,

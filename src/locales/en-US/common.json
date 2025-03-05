@@ -1,0 +1,8 @@
+{
+  "usernameOrPasswordError": "Username or password error",
+  "userFrozen": "User is frozen",
+  "userExists": "User already exists",
+  "userNotFound": "User not found",
+  "oldPasswordError": "Old password is incorrect",
+  "passwordUpdated": "Password updated successfully"
+}

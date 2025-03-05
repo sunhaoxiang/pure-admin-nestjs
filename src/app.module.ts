@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
@@ -9,6 +9,8 @@ import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import 'winston-daily-rotate-file'
 import { WinstonModule } from 'nest-winston'
+import { HeaderResolver, I18nModule, I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n'
+import path from 'node:path'
 import winston from 'winston'
 
 import config from '@/configs'
@@ -73,6 +75,15 @@ const logDir = 'log'
       useFactory: async (configService: ConfigService) => ([
         ...(await configService.get('throttler')),
       ]),
+    }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en-US',
+      loaderOptions: {
+        path: path.join(__dirname, '/locales/'),
+        watch: true,
+      },
+      resolvers: [new HeaderResolver(['x-lang'])],
+      typesOutputPath: path.join(__dirname, '/generated/i18n.generated.ts'),
     }),
     NodemailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -160,7 +171,7 @@ const logDir = 'log'
     // -------------------- Pipes --------------------
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({
+      useValue: new I18nValidationPipe({
         transform: true,
         whitelist: true,
         validateCustomDecorators: true,
@@ -178,6 +189,12 @@ const logDir = 'log'
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter, // Http 异常过滤器
+    },
+    {
+      provide: APP_FILTER,
+      useFactory: () => new I18nValidationExceptionFilter({ // 国际化异常过滤器
+        detailedErrors: false,
+      }),
     },
   ],
 })

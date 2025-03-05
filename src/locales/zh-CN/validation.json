@@ -1,0 +1,6 @@
+{
+  "notEmpty": "{{field}}不能为空",
+  "minLength": "{{field}}必须至少{{min}}个字符",
+  "maxLength": "{{field}}必须最多{{max}}个字符",
+  "invalid": "{{field}}格式不正确"
+}

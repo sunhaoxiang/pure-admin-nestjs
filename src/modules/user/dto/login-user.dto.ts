@@ -1,15 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
+import { i18nValidationMessage } from 'nestjs-i18n'
 
 export class LoginUserDto {
   @IsNotEmpty({
-    message: '用户名不能为空',
+    message: i18nValidationMessage('validation.notEmpty', {
+      field: 'username',
+    }),
   })
   @ApiProperty()
   username: string
 
   @IsNotEmpty({
-    message: '密码不能为空',
+    message: i18nValidationMessage('validation.notEmpty', {
+      field: 'password',
+    }),
   })
   @ApiProperty()
   password: string

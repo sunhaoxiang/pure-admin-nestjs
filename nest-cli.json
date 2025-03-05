@@ -7,6 +7,9 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "watchAssets": true
+    "watchAssets": true,
+    "assets": [
+      { "include": "locales/**/*", "watchAssets": true, "outDir": "dist/src/" }
+    ]
   }
 }

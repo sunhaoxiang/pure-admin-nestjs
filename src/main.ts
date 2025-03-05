@@ -12,7 +12,7 @@ async function bootstrap() {
   adapter.enableCors({
     origin: ['*'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'x-lang'],
     maxAge: 86400, // 预检请求结果缓存时间（秒）
   })
 
