@@ -68,6 +68,29 @@ export class UserService {
     })
   }
 
+  async updatePassword(id: number, updateUserPasswordDto: UpdateUserPasswordDto) {
+    const { oldPassword, newPassword } = updateUserPasswordDto
+
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    })
+
+    if (!user) {
+      throw new NotFoundException()
+    }
+
+    if (!(await verifyPassword(oldPassword, user.password))) {
+      throw new UnauthorizedException({ message: '旧密码不正确' })
+    }
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: await hashPassword(newPassword) },
+    })
+
+    return { message: '密码修改成功' }
+  }
+
   async delete(id: number) {
     return this.prisma.user.delete({
       where: {

@@ -148,47 +148,13 @@ export class UserController {
     return this.userService.getUserInfo(jwtUserData)
   }
 
-  @Public()
-  @Get('register-captcha')
-  @ApiQuery({
-    name: 'address',
-    type: String,
-    description: '邮箱地址',
-    required: true,
-    example: 'xxx@xx.com',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '发送成功',
-    type: String,
-  })
-  async captcha(@Query('address') address: string) {
-    const code = Math.random().toString().slice(2, 8)
-
-    await this.cacheService.set(`captcha_${address}`, code, 5 * 60)
-
-    await this.nodemailerService.sendMail({
-      to: address,
-      subject: '注册验证码',
-      html: `<p>你的注册验证码是 ${code}</p>`,
-    })
-    return '发送成功'
-  }
-
-  @Get('freeze')
+  @Post('update-password')
   @ApiBearerAuth()
-  @ApiQuery({
-    name: 'id',
-    description: 'userId',
-    type: Number,
+  @ApiBody({
+    type: UpdateUserPasswordDto,
   })
-  @ApiResponse({
-    type: String,
-    description: 'success',
-  })
-  async freeze(@Query('id') id: number) {
-    await this.userService.freezeUserById(id)
-    return 'success'
+  async updatePassword(@UserInfo('id') id: number, @Body() updateUserPasswordDto: UpdateUserPasswordDto) {
+    return this.userService.updatePassword(id, updateUserPasswordDto)
   }
 
   @Get()
