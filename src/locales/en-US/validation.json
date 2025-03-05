@@ -1,6 +1,8 @@
 {
   "notEmpty": "{field} cannot be empty",
+  "invalid": "{field} is invalid",
   "minLength": "{field} must be at least {min} characters long",
   "maxLength": "{field} must be at most {max} characters long",
-  "invalid": "{field} is invalid"
+  "min": "{field} must be at least {min}",
+  "max": "{field} must be at most {max}"
 }

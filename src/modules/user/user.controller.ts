@@ -29,7 +29,6 @@ import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
 import { JwtUserData } from '@/types'
 
 import { CreateUserDto } from './dto/create-user.dto'
-import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListDto } from './dto/user-list.dto'

@@ -4,5 +4,9 @@
   "userExists": "User already exists",
   "userNotFound": "User not found",
   "oldPasswordError": "Old password is incorrect",
-  "passwordUpdated": "Password updated successfully"
+  "passwordUpdated": "Password updated successfully",
+  "tokenExpired": "Token expired, please login again",
+  "refreshTokenOnly": "Refresh token can only be used for refreshing",
+  "accessTokenOnly": "Access token cannot be used for refreshing",
+  "noPermission": "You do not have permission to access this interface"
 }

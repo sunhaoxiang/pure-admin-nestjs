@@ -2,6 +2,7 @@ import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport'
 import { FastifyRequest } from 'fastify'
+import { I18nService } from 'nestjs-i18n'
 
 import { IS_PUBLIC_KEY, IS_REFRESH_KEY, PERMISSIONS_KEY } from '@/decorators'
 
@@ -9,6 +10,7 @@ import { IS_PUBLIC_KEY, IS_REFRESH_KEY, PERMISSIONS_KEY } from '@/decorators'
 export class AuthGuard extends PassportAuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
+    private readonly i18n: I18nService,
   ) {
     super()
   }
@@ -29,14 +31,14 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
       const isAuthenticated = await super.canActivate(context)
 
       if (!isAuthenticated) {
-        throw new UnauthorizedException('Token 失效，请重新登录')
+        throw new UnauthorizedException(this.i18n.t('common.tokenExpired'))
       }
 
       const isRefresh = this.reflector.get<boolean>(IS_REFRESH_KEY, context.getHandler())
       const request = context.switchToHttp().getRequest<FastifyRequest>()
 
       if (!isRefresh && request.user.tokenType !== 'access') {
-        throw new UnauthorizedException('refreshToken 只能用于刷新接口')
+        throw new UnauthorizedException(this.i18n.t('common.refreshTokenOnly'))
       }
 
       if (request.user.isSuperAdmin) {
@@ -57,14 +59,14 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
       const hasAllPermissions = requiredApiPermissions.every(permission => userApiPermissions.includes(permission))
 
       if (!hasAllPermissions) {
-        throw new ForbiddenException('您没有访问该接口的权限')
+        throw new ForbiddenException(this.i18n.t('common.noPermission'))
       }
 
       return true
     }
     catch (error) {
       if (error instanceof UnauthorizedException) {
-        throw new UnauthorizedException('accessToken 不能用于刷新接口')
+        throw new UnauthorizedException(this.i18n.t('common.accessTokenOnly'))
       }
 
       throw error

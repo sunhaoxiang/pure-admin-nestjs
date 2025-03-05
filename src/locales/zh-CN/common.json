@@ -4,5 +4,9 @@
   "userExists": "用户已存在",
   "userNotFound": "用户不存在",
   "oldPasswordError": "旧密码不正确",
-  "passwordUpdated": "密码更新成功"
+  "passwordUpdated": "密码更新成功",
+  "tokenExpired": "Token 失效，请重新登录",
+  "refreshTokenOnly": "refreshToken 只能用于刷新接口",
+  "accessTokenOnly": "accessToken 不能用于刷新接口",
+  "noPermission": "您没有访问该接口的权限"
 }
