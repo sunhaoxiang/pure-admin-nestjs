@@ -44,6 +44,10 @@ export class CreateMenuDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  i18nKey?: string
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   description?: string
 
   @ApiProperty({ required: false })
