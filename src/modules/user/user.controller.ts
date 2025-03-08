@@ -22,10 +22,19 @@ import { FastifyRequest } from 'fastify'
 
 import { DeleteManyDto } from '@/common/dto'
 import { USER } from '@/constants/permissions'
-import { CacheTTL, CacheUserKey, Permissions, Public, Refresh, UserInfo } from '@/decorators'
+import {
+  CacheInvalidate,
+  CacheInvalidateUser,
+  CacheKey,
+  CacheTTL,
+  CacheUserKey,
+  Permissions,
+  Public,
+  Refresh,
+  UserInfo,
+} from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
 import { CacheService } from '@/modules/cache/cache.service'
-import { NodemailerService } from '@/modules/nodemailer/nodemailer.service'
 import { JwtUserData } from '@/types'
 
 import { CreateUserDto } from './dto/create-user.dto'
@@ -45,7 +54,6 @@ export class UserController {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly nodemailerService: NodemailerService,
     private readonly cacheService: CacheService,
   ) {}
 
@@ -134,15 +142,15 @@ export class UserController {
   }
 
   @Get('info')
+  @CacheUserKey('user:info')
+  @CacheTTL(UserController.CACHE_TTL)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'success',
     type: UserDetailVo,
   })
-  // @CacheUserKey('user:info')
-  // @CacheTTL(UserController.CACHE_TTL)
-  // @UseInterceptors(CacheInterceptor)
   async info(@UserInfo() jwtUserData: JwtUserData) {
     return this.userService.getUserInfo(jwtUserData)
   }
@@ -158,6 +166,9 @@ export class UserController {
 
   @Get()
   @Permissions(USER.READ)
+  @CacheKey('user:list')
+  @CacheTTL(UserController.CACHE_TTL)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   async list(@Query() userListDto: UserListDto) {
     return this.userService.findMany(userListDto)
@@ -165,6 +176,8 @@ export class UserController {
 
   @Post()
   @Permissions(USER.CREATE)
+  @CacheInvalidate('user:list')
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiBody({
     type: CreateUserDto,
@@ -175,6 +188,8 @@ export class UserController {
 
   @Delete()
   @Permissions(USER.DELETE)
+  @CacheInvalidate('user:list')
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   async deleteMany(@Body() deleteManyDto: DeleteManyDto) {
     return this.userService.deleteMany(deleteManyDto.ids)
@@ -188,6 +203,9 @@ export class UserController {
 
   @Put(':id')
   @Permissions(USER.UPDATE)
+  @CacheInvalidate('user:list')
+  @CacheInvalidateUser('user:info', req => req.params.id)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserDto,
