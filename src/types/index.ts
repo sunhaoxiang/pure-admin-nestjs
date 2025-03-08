@@ -4,6 +4,8 @@ declare module 'fastify' {
   }
 }
 
+export type TokenType = 'access' | 'refresh'
+
 export interface JwtUserData {
   id: number
   username: string
@@ -11,5 +13,5 @@ export interface JwtUserData {
   menuPermissions: string[]
   featurePermissions: string[]
   apiPermissions: string[]
-  tokenType: 'access' | 'refresh'
+  tokenType: TokenType
 }

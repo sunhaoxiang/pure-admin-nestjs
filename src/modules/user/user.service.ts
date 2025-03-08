@@ -4,8 +4,6 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { I18nService } from 'nestjs-i18n'
 import { Logger } from 'winston'
 
-import { ApiService } from '@/modules/api/api.service'
-import { CacheService } from '@/modules/cache/cache.service'
 import { MenuService } from '@/modules/menu/menu.service'
 import { PrismaService } from '@/modules/prisma/prisma.service'
 import { JwtUserData } from '@/types'
@@ -20,10 +18,8 @@ import { UserListDto } from './dto/user-list.dto'
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cacheService: CacheService,
     private readonly i18n: I18nService,
     private readonly menuService: MenuService,
-    private readonly apiService: ApiService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 

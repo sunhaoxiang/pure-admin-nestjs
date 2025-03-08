@@ -1,7 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseFilters, UsePipes } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseInterceptors, UsePipes } from '@nestjs/common'
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { MenuType } from '@prisma/client'
 
+import { MENU } from '@/constants/permissions'
+import { CacheInvalidate, CacheKey, CacheTTL, Permissions } from '@/decorators'
+import { CacheInterceptor } from '@/interceptors'
 import { updateValidationPipe } from '@/pipes'
 
 import { CreateMenuDto } from './dto/create-menu.dto'
@@ -11,9 +14,15 @@ import { MenuService } from './menu.service'
 @Controller('menu')
 @ApiTags('菜单管理模块')
 export class MenuController {
+  private static readonly CACHE_TTL = 60 * 60 * 1
+
   constructor(private readonly menuService: MenuService) {}
 
   @Get()
+  @Permissions(MENU.READ)
+  @CacheKey('menu:tree')
+  @CacheTTL(MenuController.CACHE_TTL)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取菜单' })
   @ApiOkResponse({
@@ -24,6 +33,10 @@ export class MenuController {
   }
 
   @Get('/flat')
+  @Permissions(MENU.READ)
+  @CacheKey('menu:flat')
+  @CacheTTL(MenuController.CACHE_TTL)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取菜单扁平化列表' })
   @ApiOkResponse({
@@ -34,6 +47,10 @@ export class MenuController {
   }
 
   @Get('/permission')
+  @Permissions(MENU.READ)
+  @CacheKey('menu:permission')
+  @CacheTTL(MenuController.CACHE_TTL)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取有权限的菜单和按钮列表' })
   @ApiOkResponse({
@@ -44,6 +61,9 @@ export class MenuController {
   }
 
   @Post()
+  @Permissions(MENU.CREATE)
+  @CacheInvalidate(['menu:tree', 'menu:flat', 'menu:permission'])
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: '创建菜单' })
   @ApiOkResponse({
@@ -60,6 +80,9 @@ export class MenuController {
   }
 
   @Put(':id')
+  @Permissions(MENU.UPDATE)
+  @CacheInvalidate(['menu:tree', 'menu:flat', 'menu:permission'])
+  @UseInterceptors(CacheInterceptor)
   @UsePipes(updateValidationPipe)
   @ApiBearerAuth()
   @ApiOperation({ summary: '更新菜单' })
@@ -71,7 +94,14 @@ export class MenuController {
   }
 
   @Delete(':id')
+  @Permissions(MENU.DELETE)
+  @CacheInvalidate(['menu:tree', 'menu:flat', 'menu:permission'])
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
+  @ApiOperation({ summary: '删除菜单' })
+  @ApiOkResponse({
+    description: '删除菜单成功',
+  })
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.menuService.delete(id)
   }

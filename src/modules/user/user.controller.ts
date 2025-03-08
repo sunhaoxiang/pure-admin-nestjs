@@ -13,6 +13,7 @@ import {
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
@@ -34,7 +35,7 @@ import {
   UserInfo,
 } from '@/decorators'
 import { CacheInterceptor } from '@/interceptors'
-import { CacheService } from '@/modules/cache/cache.service'
+import { updateValidationPipe } from '@/pipes'
 import { JwtUserData } from '@/types'
 
 import { CreateUserDto } from './dto/create-user.dto'
@@ -42,19 +43,16 @@ import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListDto } from './dto/user-list.dto'
 import { UserService } from './user.service'
-import { RefreshTokenVo } from './vo/refresh-token.vo'
-import { UserDetailVo } from './vo/user-detail.vo'
 
 @Controller('user')
 @ApiTags('用户管理模块')
 export class UserController {
-  private static readonly CACHE_TTL = 60 * 60 * 8
+  private static readonly CACHE_TTL = 60 * 60 * 1
 
   constructor(
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly cacheService: CacheService,
   ) {}
 
   @Public()
@@ -103,7 +101,6 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: '刷新成功',
-    type: RefreshTokenVo,
   })
   async refresh(@Query('refreshToken') refreshToken: string) {
     try {
@@ -149,7 +146,6 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'success',
-    type: UserDetailVo,
   })
   async info(@UserInfo() jwtUserData: JwtUserData) {
     return this.userService.getUserInfo(jwtUserData)
@@ -206,6 +202,7 @@ export class UserController {
   @CacheInvalidate('user:list')
   @CacheInvalidateUser('user:info', req => req.params.id)
   @UseInterceptors(CacheInterceptor)
+  @UsePipes(updateValidationPipe)
   @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserDto,
@@ -216,6 +213,9 @@ export class UserController {
 
   @Delete(':id')
   @Permissions(USER.DELETE)
+  @CacheInvalidate('user:list')
+  @CacheInvalidateUser('user:info', req => req.params.id)
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.userService.delete(id)
