@@ -13,10 +13,3 @@ export interface JwtUserData {
   apiPermissions: string[]
   tokenType: 'access' | 'refresh'
 }
-
-// export interface UserAuthorizationInfo {
-//   id: number
-//   username: string
-//   isSuperAdmin: boolean
-//   menuPermissions: string[]
-// }
