@@ -1,3 +1,10 @@
+# Environment
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
 # trash
 /trashed
 
@@ -39,7 +46,3 @@ lerna-debug.log*
 
 # cursor
 .cursorrules
-
-# env
-.env
-.env.*

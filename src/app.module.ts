@@ -42,7 +42,7 @@ const logDir = 'log'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath,
+      envFilePath: [envFilePath, '.env'],
       isGlobal: true,
       load: [...config],
     }),
