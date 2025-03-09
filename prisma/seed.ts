@@ -19,23 +19,11 @@ async function hashPassword(password: string): Promise<string> {
 const prisma = new PrismaClient()
 
 async function main() {
-  // const username = SUPER_ADMIN_USERNAME
-  // const password = await hashPassword(SUPER_ADMIN_PASSWORD)
+  // 可以将不需要创建的内容注释掉
 
-  // const newUser: Prisma.UserCreateInput = {
-  //   username,
-  //   password,
-  //   email: 'admin@pure-admin.com',
-  //   nickName: 'admin',
-  //   phone: '13333333333',
-  //   isSuperAdmin: true,
-  // }
-  // const user = await prisma.user.create({
-  //   data: newUser,
-  // })
-  // console.log(user)
   // 创建超级管理员
   await createSuperAdmin()
+
   // 创建首页菜单
   await createHomeMenu()
   // 创建系统菜单

@@ -59,9 +59,6 @@ export class UserController {
   @Post('login')
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: FastifyRequest) {
-    console.log('--------------------------------')
-    console.log(this.configService.get('NEST_TEST_STR'))
-    console.log('--------------------------------')
     const accessToken = this.jwtService.sign(
       {
         ...req.user,
