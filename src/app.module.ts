@@ -37,8 +37,6 @@ dayjs.tz.setDefault('Asia/Shanghai')
 
 const envFilePath = getEnvPath(__dirname)
 
-const logDir = 'log'
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -92,31 +90,65 @@ const logDir = 'log'
         ...(await configService.get('nodemailer')),
       }),
     }),
-    WinstonModule.forRoot({
-      level: 'http',
-      transports: [
-        new winston.transports.Console({
-          format: defaultLogFormat(),
-        }),
-        new winston.transports.DailyRotateFile({
-          ...createLoggerOptions('http', logDir),
-          format: defaultLogFormat(true, 'http'),
-        }),
-        new winston.transports.DailyRotateFile({
-          ...createLoggerOptions('info', logDir),
-          format: defaultLogFormat(true, 'info'),
-        }),
-        new winston.transports.DailyRotateFile({
-          ...createLoggerOptions('error', logDir),
-          format: defaultLogFormat(true, 'error'),
-        }),
-      ],
-      exceptionHandlers: [
-        new winston.transports.DailyRotateFile({
-          ...createLoggerOptions('exception', logDir),
-          format: defaultLogFormat(),
-        }),
-      ],
+    // WinstonModule.forRoot({
+    //   level: 'http',
+    //   transports: [
+    //     new winston.transports.Console({
+    //       format: defaultLogFormat(),
+    //     }),
+    //     new winston.transports.DailyRotateFile({
+    //       ...createLoggerOptions('http', logDir),
+    //       format: defaultLogFormat(true, 'http'),
+    //     }),
+    //     new winston.transports.DailyRotateFile({
+    //       ...createLoggerOptions('info', logDir),
+    //       format: defaultLogFormat(true, 'info'),
+    //     }),
+    //     new winston.transports.DailyRotateFile({
+    //       ...createLoggerOptions('error', logDir),
+    //       format: defaultLogFormat(true, 'error'),
+    //     }),
+    //   ],
+    //   exceptionHandlers: [
+    //     new winston.transports.DailyRotateFile({
+    //       ...createLoggerOptions('exception', logDir),
+    //       format: defaultLogFormat(),
+    //     }),
+    //   ],
+    // }),
+    WinstonModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const logDir = configService.get<string>('NEST_LOG_DIR', 'log')
+
+        return {
+          level: 'http',
+          transports: [
+            new winston.transports.Console({
+              format: defaultLogFormat(),
+            }),
+            new winston.transports.DailyRotateFile({
+              ...createLoggerOptions('http', logDir),
+              format: defaultLogFormat(true, 'http'),
+            }),
+            new winston.transports.DailyRotateFile({
+              ...createLoggerOptions('info', logDir),
+              format: defaultLogFormat(true, 'info'),
+            }),
+            new winston.transports.DailyRotateFile({
+              ...createLoggerOptions('error', logDir),
+              format: defaultLogFormat(true, 'error'),
+            }),
+          ],
+          exceptionHandlers: [
+            new winston.transports.DailyRotateFile({
+              ...createLoggerOptions('exception', logDir),
+              format: defaultLogFormat(),
+            }),
+          ],
+        }
+      },
     }),
     AuthModule,
     UserModule,

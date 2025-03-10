@@ -24,7 +24,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "copy-files": "copyfiles -u 1 prisma/schema/**/* dist/prisma/ && copyfiles package.json pnpm-lock.yaml .env.production .env.development dist/"
+    "copy-files": "copyfiles -u 1 prisma/schema/**/* dist/prisma/ && copyfiles package.json pnpm-lock.yaml .env .env.production .env.development dist/"
   },
   "dependencies": {
     "@fastify/helmet": "^13.0.1",

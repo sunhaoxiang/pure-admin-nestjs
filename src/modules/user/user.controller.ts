@@ -65,7 +65,7 @@ export class UserController {
         type: 'access',
       },
       {
-        expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
+        expiresIn: this.configService.get('JWT_ACCESS_EXPIRES') || '30m',
       },
     )
 
@@ -114,7 +114,7 @@ export class UserController {
           type: 'access',
         },
         {
-          expiresIn: this.configService.get('JWT_EXPIRES') || '30m',
+          expiresIn: this.configService.get('JWT_ACCESS_EXPIRES') || '30m',
         },
       )
 

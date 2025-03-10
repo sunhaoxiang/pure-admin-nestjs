@@ -21,7 +21,7 @@ const prisma = new PrismaClient()
 async function main() {
   // 可以将不需要创建的内容注释掉
 
-  // 创建超级管理员
+  // 创建超级管理员账号
   await createSuperAdmin()
 
   // 创建首页菜单
