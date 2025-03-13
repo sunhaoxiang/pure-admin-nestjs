@@ -26,10 +26,14 @@ async function main() {
 
   // 创建首页菜单
   await createHomeMenu()
-  // 创建系统菜单
-  await createSystemMenu()
   // 创建组件示例菜单
   await createExampleMenu()
+  // 创建异常页菜单
+  await createExceptionMenu()
+  // 创建多级菜单
+  await createMultiMenu()
+  // 创建系统菜单
+  await createSystemMenu()
   // 创建关于菜单
   await createAboutMenu()
 }
@@ -67,6 +71,131 @@ async function createHomeMenu() {
   })
 }
 
+async function createExceptionMenu() {
+  const exception = await prisma.menu.create({
+    data: {
+      title: '异常页',
+      type: MenuType.DIRECTORY,
+      icon: 'icon-park-outline:abnormal',
+      i18nKey: 'menu.exception',
+      sort: 3,
+      isShow: true,
+      description: '异常页',
+    },
+  })
+
+  await prisma.menu.createMany({
+    data: [
+      {
+        parentId: exception.id,
+        title: '403',
+        type: MenuType.MENU,
+        icon: 'icon-park-outline:termination-file',
+        path: '/exception/403',
+        i18nKey: 'menu.exception403',
+        sort: 0,
+        isShow: true,
+      },
+      {
+        parentId: exception.id,
+        title: '404',
+        type: MenuType.MENU,
+        icon: 'icon-park-outline:file-search-one',
+        path: '/exception/404',
+        i18nKey: 'menu.exception404',
+        sort: 1,
+        isShow: true,
+      },
+      {
+        parentId: exception.id,
+        title: '500',
+        type: MenuType.MENU,
+        icon: 'icon-park-outline:file-failed-one',
+        path: '/exception/500',
+        i18nKey: 'menu.exception500',
+        sort: 2,
+        isShow: true,
+      },
+    ],
+  })
+}
+
+async function createMultiMenu() {
+  const multiMenu = await prisma.menu.create({
+    data: {
+      title: '多级菜单',
+      type: MenuType.DIRECTORY,
+      icon: 'icon-park-outline:hamburger-button',
+      i18nKey: 'menu.multiMenu',
+      isShow: true,
+      sort: 4,
+    },
+  })
+
+  await prisma.menu.create({
+    data: {
+      parentId: multiMenu.id,
+      title: '菜单1',
+      type: MenuType.MENU,
+      icon: 'icon-park-outline:hamburger-button',
+      path: '/multi-menu/first-child',
+      i18nKey: 'menu.multiMenu1',
+      isShow: true,
+      sort: 0,
+    },
+  })
+
+  const menu2 = await prisma.menu.create({
+    data: {
+      parentId: multiMenu.id,
+      title: '菜单2',
+      type: MenuType.DIRECTORY,
+      icon: 'icon-park-outline:hamburger-button',
+      i18nKey: 'menu.multiMenu2',
+      isShow: true,
+      sort: 1,
+    },
+  })
+
+  await prisma.menu.create({
+    data: {
+      parentId: menu2.id,
+      title: '菜单2-1',
+      type: MenuType.MENU,
+      icon: 'icon-park-outline:hamburger-button',
+      path: '/multi-menu/second-child',
+      i18nKey: 'menu.multiMenu2_1',
+      isShow: true,
+      sort: 0,
+    },
+  })
+
+  const menu2_2 = await prisma.menu.create({
+    data: {
+      parentId: menu2.id,
+      title: '菜单2-2',
+      type: MenuType.DIRECTORY,
+      icon: 'icon-park-outline:hamburger-button',
+      i18nKey: 'menu.multiMenu2_2',
+      isShow: true,
+      sort: 1,
+    },
+  })
+
+  await prisma.menu.create({
+    data: {
+      parentId: menu2_2.id,
+      title: '菜单2-2-1',
+      type: MenuType.MENU,
+      icon: 'icon-park-outline:hamburger-button',
+      path: '/multi-menu/third-child',
+      i18nKey: 'menu.multiMenu2_2_1',
+      isShow: true,
+      sort: 0,
+    },
+  })
+}
+
 async function createSystemMenu() {
   // 创建根菜单：系统设置
   const systemSettings = await prisma.menu.create({
@@ -75,7 +204,7 @@ async function createSystemMenu() {
       type: MenuType.DIRECTORY,
       icon: 'icon-park-outline:config',
       i18nKey: 'menu.system',
-      sort: 3,
+      sort: 5,
       isShow: true,
       description: '系统设置',
     },
@@ -246,7 +375,7 @@ async function createExampleMenu() {
       type: MenuType.DIRECTORY,
       icon: 'icon-park-outline:components',
       i18nKey: 'menu.example',
-      sort: 1,
+      sort: 2,
       isShow: true,
     },
   })
