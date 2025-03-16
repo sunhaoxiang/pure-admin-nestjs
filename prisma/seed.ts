@@ -24,17 +24,17 @@ async function main() {
   // 创建超级管理员账号
   await createSuperAdmin()
 
-  // 创建首页菜单
+  // 创建首页菜单数据
   await createHomeMenu()
-  // 创建组件示例菜单
+  // 创建组件示例菜单数据
   await createExampleMenu()
-  // 创建异常页菜单
+  // 创建异常页菜单数据
   await createExceptionMenu()
-  // 创建多级菜单
+  // 创建多级菜单数据
   await createMultiMenu()
-  // 创建系统菜单
+  // 创建系统菜单数据
   await createSystemMenu()
-  // 创建关于菜单
+  // 创建关于菜单数据
   await createAboutMenu()
 }
 
