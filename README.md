@@ -1,73 +1,51 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<div align="center">
+  <h1>Pure Admin Vue</h1>
+  <span>中文 | <a href="./README.en_US.md">English</a></span>
+</div>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
-## Description
+## 简介
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+`Pure Admin` 是一款简洁优雅、功能强大且专注于用户体验的后台管理系统。 前端同时支持 `React 19` / `Vue 3` 双版本，让您可灵活选择开发技术栈，后端使用 `NestJS 11` 开发。点击 [文档]() 了解更多相关内容。
 
-## Installation
+**本项目为后端 `NestJS 11` 版本实现。**
 
-```bash
-$ pnpm install
-```
+## 特点
 
-## Running the app
+- 使用最新技术栈（React 19、Vue 3、NestJS 11、Prisma 6 等）。
+- 使用 TypeScript 进行开发，支持严格的类型检查，提高代码的可维护性。
+- 内置丰富业务组件，包括布局、图表、列表增删改查等，提高开发效率。
+- 漂亮的 UI 设计、极致的用户体验和细节处理。
+- 前端基于文件的路由系统。
+- 基于装饰器的后端缓存系统，简单好用的。
+- 前后端均内置国际化方案，实现多语言支持。
+- 前后端打通的权限系统。
 
-```bash
-# development
-$ pnpm run start
+## 版本
 
-# watch mode
-$ pnpm run start:dev
+- **后端 `NestJS` 版本:**
 
-# production mode
-$ pnpm run start:prod
-```
+  - [文档地址](/pure-admin-nestjs/quick-start)
+  - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-nestjs)
 
-## Test
+- **前端 `React` 版本:**
 
-```bash
-# unit tests
-$ pnpm run test
+  - [文档地址](/pure-admin-react/quick-start)
+  - [预览地址](https://github.com/sunhaoxiang)
+  - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-react)
 
-# e2e tests
-$ pnpm run test:e2e
+- **前端 `Vue` 版本:**
 
-# test coverage
-$ pnpm run test:cov
-```
+  - [文档地址](/pure-admin-vue/quick-start)
+  - [预览地址](https://github.com/sunhaoxiang)
+  - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-vue)
 
-## Support
+## 技术栈
+- **Pure Admin React**：React 19、Vite、Ant Design、@tanstack/react-query、Unocss 等。
+- **Pure Admin Vue**：Vue 3、Vite、Ant Design Vue、@tanstack/vue-query、Unocss 等。
+- **Pure Admin NestJS**：NestJS 11、Prisma 6、PostgreSQL、Redis 等。
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+## 示例图片
