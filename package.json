@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "NODE_ENV=development nest start --watch",
     "build": "nest build",
-    "postbuild": "pnpm run copy-files",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev",
     "prisma:reset:dev": "dotenv -e .env.development -- prisma migrate reset",
@@ -23,8 +22,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "copy-files": "copyfiles -u 1 prisma/schema/**/* dist/prisma/ && copyfiles package.json pnpm-lock.yaml .env .env.production .env.development dist/"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@fastify/helmet": "^13.0.1",
@@ -73,7 +71,6 @@
     "@types/passport-local": "^1.0.38",
     "@types/split2": "^4.2.3",
     "@types/supertest": "^6.0.2",
-    "copyfiles": "^2.4.1",
     "dotenv-cli": "^8.0.0",
     "eslint": "^9.22.0",
     "eslint-plugin-jest": "^28.11.0",
@@ -114,6 +111,7 @@
       "@nestjs/core",
       "@prisma/client",
       "@prisma/engines",
+      "@scarf/scarf",
       "esbuild",
       "prisma"
     ]
