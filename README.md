@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Pure Admin NestJs</h1>
+  <h1>Pure Admin NestJS</h1>
   <span>中文 | <a href="./README.en_US.md">English</a></span>
 </div>
 

@@ -1,6 +1,6 @@
 <div align="center">
 
- <h1>Pure Admin React</h1>
+ <h1>Pure Admin NestJS</h1>
 
  <span>English | <a href="./README.md">中文</a></span>
 
