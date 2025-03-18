@@ -28,19 +28,19 @@
 
 - **后端 `NestJS` 版本:**
 
-  - [文档地址](/pure-admin-nestjs/quick-start)
+  - [文档地址](https://pure-admin-docs.sunhaoxiang.me/pure-admin-nestjs/intro.html)
   - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-nestjs)
 
 - **前端 `React` 版本:**
 
-  - [文档地址](/pure-admin-react/quick-start)
-  - [预览地址](https://github.com/sunhaoxiang)
+  - [文档地址](https://pure-admin-docs.sunhaoxiang.me/pure-admin-react/intro.html)
+  - [预览地址](https://pure-admin-react.sunhaoxiang.me)
   - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-react)
 
 - **前端 `Vue` 版本:**
 
-  - [文档地址](/pure-admin-vue/quick-start)
-  - [预览地址](https://github.com/sunhaoxiang)
+  - [文档地址](https://pure-admin-docs.sunhaoxiang.me/pure-admin-vue/intro.html)
+  - [预览地址](https://pure-admin-vue.sunhaoxiang.me)
   - [Github 仓库](https://github.com/sunhaoxiang/pure-admin-vue)
 
 ## 技术栈
@@ -49,3 +49,8 @@
 - **Pure Admin NestJS**：NestJS 11、Prisma 6、PostgreSQL、Redis 等。
 
 ## 示例图片
+
+![light](https://p.ipic.vip/wbw4rc.png)
+![light](https://p.ipic.vip/wtvurq.png)
+![light](https://p.ipic.vip/ahfuw3.png)
+![light](https://p.ipic.vip/417pqw.png)
