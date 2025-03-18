@@ -17,6 +17,7 @@ import config from '@/configs'
 import { AllExceptionsFilter, HttpExceptionFilter } from '@/filters'
 import { AuthGuard } from '@/guards'
 import { FormatResponseInterceptor, InvokeRecordInterceptor } from '@/interceptors'
+import { ExampleInterceptor } from '@/interceptors/example.interceptor'
 import { ApiModule } from '@/modules/api/api.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { CacheModule } from '@/modules/cache/cache.module'
@@ -191,6 +192,10 @@ const envFilePath = getEnvPath(__dirname)
     },
 
     // -------------------- Interceptors --------------------
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ExampleInterceptor, // 示例拦截器，仅在示例项目中使用，正式项目不要使用！
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: InvokeRecordInterceptor, // 调用记录拦截器
