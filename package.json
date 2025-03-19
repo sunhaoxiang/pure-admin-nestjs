@@ -6,7 +6,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development nest start --watch",
+    "dev": "cross-env NODE_ENV=development nest start --watch",
     "build": "nest build",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev",
@@ -71,6 +71,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/split2": "^4.2.3",
     "@types/supertest": "^6.0.2",
+    "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0",
     "eslint": "^9.22.0",
     "eslint-plugin-jest": "^28.11.0",
