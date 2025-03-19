@@ -4,7 +4,7 @@
   "private": true,
   "description": "",
   "author": "",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development nest start --watch",
     "build": "nest build",
