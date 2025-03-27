@@ -1,9 +1,9 @@
 {
   "name": "pure-admin-nestjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "",
-  "author": "",
+  "description": "A concise, elegant, powerful and user experience focused background management system",
+  "author": "sunhaoxiang",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nest start --watch",
