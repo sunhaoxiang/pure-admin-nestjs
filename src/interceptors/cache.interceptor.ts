@@ -81,6 +81,46 @@ export class CacheInterceptor implements NestInterceptor {
     const cacheKey = this.generateCacheKey(prefix, userPrefix, userId, queryParams)
 
     try {
+      // 处理普通缓存失效
+      if (invalidatePrefixes.length > 0) {
+        for (const invalidatePrefix of invalidatePrefixes) {
+          const count = await this.cacheService.deleteByPrefix(this.CACHE_NAMESPACE, invalidatePrefix)
+          if (count > 0) {
+            this.logger.info(`已清除前缀为 ${invalidatePrefix} 的 ${count} 个缓存条目`)
+          }
+        }
+      }
+
+      // 处理用户相关的缓存失效
+      if (invalidateUserPrefixes.prefixes.length > 0) {
+        let userIds: number[] = []
+
+        if (invalidateUserPrefixes.userIdSelector) {
+          const selectedIds = invalidateUserPrefixes.userIdSelector(request)
+
+          if (Array.isArray(selectedIds)) {
+            userIds = selectedIds
+          }
+          else {
+            userIds = [selectedIds]
+          }
+        }
+        else {
+          userIds = [userId]
+        }
+
+        // 清除指定用户的缓存
+        for (const userId of userIds) {
+          for (const invalidateUserPrefix of invalidateUserPrefixes.prefixes) {
+            const userSpecificPrefix = `${invalidateUserPrefix}:${userId}`
+            const count = await this.cacheService.deleteByPrefix(this.CACHE_NAMESPACE, userSpecificPrefix)
+            if (count > 0) {
+              this.logger.info(`已清除前缀为 ${userSpecificPrefix} 的 ${count} 个用户缓存条目`)
+            }
+          }
+        }
+      }
+
       // 如果是读取操作（有缓存键），尝试从缓存获取数据
       if (cacheKey) {
         const cachedRawData = await this.cacheService.get(cacheKey)
@@ -99,56 +139,6 @@ export class CacheInterceptor implements NestInterceptor {
           // 如果是读取操作且有返回数据，则存储到缓存
           if (data && cacheKey) {
             await this.cacheService.set(cacheKey, JSON.stringify(data), ttl)
-          }
-
-          // 处理普通缓存失效
-          if (invalidatePrefixes.length > 0) {
-            for (const invalidatePrefix of invalidatePrefixes) {
-              const count = await this.cacheService.deleteByPrefix(this.CACHE_NAMESPACE, invalidatePrefix)
-              if (count > 0) {
-                this.logger.info(`已清除前缀为 ${invalidatePrefix} 的 ${count} 个缓存条目`)
-              }
-            }
-          }
-
-          // 处理用户相关的缓存失效
-          // if (userId && invalidateUserPrefixes.length > 0) {
-          //   for (const invalidateUserPrefix of invalidateUserPrefixes) {
-          //     const userSpecificPrefix = `${invalidateUserPrefix}:${userId}`
-          //     const count = await this.cacheService.deleteByPrefix(this.CACHE_NAMESPACE, userSpecificPrefix)
-          //     if (count > 0) {
-          //       this.logger.info(`已清除前缀为 ${userSpecificPrefix} 的 ${count} 个用户缓存条目`)
-          //     }
-          //   }
-          // }
-
-          if (invalidateUserPrefixes) {
-            let userIds: number[] = []
-
-            if (invalidateUserPrefixes.userIdSelector) {
-              const selectedIds = invalidateUserPrefixes.userIdSelector(request)
-
-              if (Array.isArray(selectedIds)) {
-                userIds = selectedIds
-              }
-              else {
-                userIds = [selectedIds]
-              }
-            }
-            else {
-              userIds = [userId]
-            }
-
-            // 清除指定用户的缓存
-            for (const userId of userIds) {
-              for (const invalidateUserPrefix of invalidateUserPrefixes.prefixes) {
-                const userSpecificPrefix = `${invalidateUserPrefix}:${userId}`
-                const count = await this.cacheService.deleteByPrefix(this.CACHE_NAMESPACE, userSpecificPrefix)
-                if (count > 0) {
-                  this.logger.info(`已清除前缀为 ${userSpecificPrefix} 的 ${count} 个用户缓存条目`)
-                }
-              }
-            }
           }
         }),
       )
