@@ -52,15 +52,15 @@ export class CacheInterceptor implements NestInterceptor {
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     // 获取缓存前缀
-    const prefix = this.reflector.get<string>(CACHE_KEY, context.getHandler())
-    const userPrefix = this.reflector.get<string>(CACHE_USER_KEY, context.getHandler())
+    const prefix = this.reflector.get<string | undefined>(CACHE_KEY, context.getHandler())
+    const userPrefix = this.reflector.get<string | undefined>(CACHE_USER_KEY, context.getHandler())
 
     // 获取需要清除的缓存前缀
-    const invalidatePrefixes = this.reflector.get<string[]>(CACHE_INVALIDATE_KEY, context.getHandler()) || []
+    const invalidatePrefixes = this.reflector.get<string[] | undefined>(CACHE_INVALIDATE_KEY, context.getHandler()) ?? []
     const invalidateUserPrefixes = this.reflector.get<{
       prefixes: string[]
       userIdSelector?: (req: any) => number | number[]
-    }>(CACHE_INVALIDATE_USER_KEY, context.getHandler()) || {
+    } | undefined>(CACHE_INVALIDATE_USER_KEY, context.getHandler()) ?? {
       prefixes: [],
       userIdSelector: undefined,
     }
@@ -69,7 +69,7 @@ export class CacheInterceptor implements NestInterceptor {
       return next.handle()
     }
 
-    const ttl = this.reflector.get<number>(CACHE_TTL_KEY, context.getHandler()) || this.DEFAULT_CACHE_TTL
+    const ttl = this.reflector.get<number | undefined>(CACHE_TTL_KEY, context.getHandler()) ?? this.DEFAULT_CACHE_TTL
 
     const httpContext = context.switchToHttp()
     const request = httpContext.getRequest<FastifyRequest>()
