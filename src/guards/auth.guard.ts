@@ -17,10 +17,10 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
 
   async canActivate(context: ExecutionContext) {
     // 检查是否是公开接口
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean | undefined>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
-    ])
+    ]) ?? false
 
     if (isPublic) {
       return true
@@ -34,7 +34,7 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
         throw new UnauthorizedException(this.i18n.t('common.tokenExpired'))
       }
 
-      const isRefresh = this.reflector.get<boolean>(IS_REFRESH_KEY, context.getHandler())
+      const isRefresh = this.reflector.get<boolean | undefined>(IS_REFRESH_KEY, context.getHandler()) ?? false
       const request = context.switchToHttp().getRequest<FastifyRequest>()
 
       if (!isRefresh && request.user.tokenType !== 'access') {
@@ -45,10 +45,10 @@ export class AuthGuard extends PassportAuthGuard('jwt') {
         return true
       }
 
-      const requiredApiPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
+      const requiredApiPermissions = this.reflector.getAllAndOverride<string[] | undefined>(PERMISSIONS_KEY, [
         context.getClass(),
         context.getHandler(),
-      ])
+      ]) ?? []
 
       if (requiredApiPermissions.length === 0) {
         return true
